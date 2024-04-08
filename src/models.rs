@@ -5,7 +5,7 @@ use chrono::NaiveDateTime;
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::products)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Products {
+pub struct Product {
     pub product_id: i32,
     pub product_name: String,
     pub calories_1gram: Option<i32>,
@@ -14,10 +14,19 @@ pub struct Products {
     pub update_time: Option<NaiveDateTime>
 }
 
+use crate::schema::products;
+#[derive(Insertable)]
+#[diesel(table_name = products)]
+pub struct NewProduct<'a> {
+    pub product_name: &'a str,
+    pub calories_1gram: &'a i32,
+    pub create_time:&'a NaiveDateTime
+}
+
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::product_measures)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct ProductMeasures{
+pub struct ProductMeasure{
     pub product_id: i32,
     pub measure_id: i32,
     pub is_primary_measure: Option<bool>,
@@ -30,7 +39,7 @@ pub struct ProductMeasures{
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Users{
+pub struct User{
     pub user_id: Uuid,
     pub username: String,
     pub password: String,
@@ -41,7 +50,7 @@ pub struct Users{
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::user_meals)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct UserMeals{
+pub struct UserMeal{
     pub meal_id: i32,
     pub user_id: Uuid,
     pub product_id: Option<i32>,

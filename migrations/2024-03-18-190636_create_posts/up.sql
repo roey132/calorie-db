@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE "products" (
-  "product_id" integer PRIMARY KEY NOT NULL,
+  "product_id" SERIAL PRIMARY KEY NOT NULL,
   "product_name" varchar NOT NULL,
   "calories_1gram" integer,
   "user_id" uuid,

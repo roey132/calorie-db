@@ -1,8 +1,9 @@
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenv::dotenv;
+use self::models::{NewProduct,Product};
 use std::env;
-
+use chrono::{DateTime,NaiveDateTime,Utc};
 pub mod models;
 pub mod schema;
 
@@ -14,17 +15,19 @@ pub fn establish_connection() -> PgConnection{
         .unwrap_or_else(|_| panic!("Error connecting to {}", databasse_url))
 }
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+pub fn create_product(conn: &mut PgConnection,
+    product_name: &str, 
+    calories_1gram: &i32) -> Product{
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    use crate::schema::products;
+    let now_utc: DateTime<Utc> = Utc::now();
+    let create_time: NaiveDateTime = now_utc.naive_utc();
+    
+    let new_product = NewProduct{product_name,calories_1gram,create_time:&create_time};
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    diesel::insert_into(products::table)
+        .values(&new_product)
+        .returning(Product::as_returning())
+        .get_result(conn)
+        .expect("Error saving new product")
 }
