@@ -1,7 +1,9 @@
+#![allow(dead_code)]
 use self::models::*;
 use diesel::prelude::*;
 use calorie_db::*;
 use uuid::Uuid;
+use chrono::{NaiveDateTime,Utc};
 
 fn get_product_by_id(conn:&mut PgConnection,id:&i32) -> Option<Product> {
     use self::schema::products::dsl::*;
@@ -18,6 +20,8 @@ fn get_product_by_id(conn:&mut PgConnection,id:&i32) -> Option<Product> {
         None
     }
 }
+
+
 fn get_products_by_user(conn:&mut PgConnection, id:Option<Uuid>) -> Vec<Product> {
     use self::schema::products::dsl::*;
     let mut query = products.into_boxed();
@@ -33,6 +37,27 @@ fn get_products_by_user(conn:&mut PgConnection, id:Option<Uuid>) -> Vec<Product>
 
     results
 }
+
+fn create_product_for_user(conn:&mut PgConnection
+    , product_name:&str
+    , calories_1gram:&i32
+    , user_id:&Uuid ) {
+    
+    use crate::schema::products;
+
+    let create_time: NaiveDateTime = Utc::now().naive_utc();
+
+    let new_product = NewUserProduct{product_name:product_name
+        ,calories_1gram:calories_1gram
+        ,user_id:user_id
+        ,create_time:&create_time};
+        {
+        let _temp = diesel::insert_into(products::table)
+            .values(&new_product)
+            .execute(conn)
+            .expect("Failed to insert new product for user");
+        }
+    }
 
 fn main(){
     /* 
@@ -53,6 +78,7 @@ fn main(){
     }
     */
     let connection = &mut establish_connection();
+    /* 
     if let Some(product) = get_product_by_id(connection,&1){
         println!("{}",product.product_id);
         println!("================");
@@ -73,5 +99,7 @@ fn main(){
     for product in products{
         println!("{}",product.product_id)
     }
+    */
+    create_product_for_user(connection,&"test_product", &5, &Uuid::new_v4())
 
 }

@@ -17,10 +17,11 @@ pub struct Product {
 use crate::schema::products;
 #[derive(Insertable)]
 #[diesel(table_name = products)]
-pub struct NewProduct<'a> {
+pub struct NewUserProduct<'a> {
     pub product_name: &'a str,
     pub calories_1gram: &'a i32,
-    pub create_time:&'a NaiveDateTime
+    pub user_id: &'a Uuid,
+    pub create_time:&'a NaiveDateTime,
 }
 
 #[derive(Queryable, Selectable)]
