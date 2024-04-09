@@ -21,7 +21,6 @@ pub struct NewUserProduct<'a> {
     pub product_name: &'a str,
     pub calories_1gram: &'a i32,
     pub user_id: &'a Uuid,
-    pub create_time:&'a NaiveDateTime,
 }
 
 #[derive(Queryable, Selectable)]
@@ -46,6 +45,14 @@ pub struct User{
     pub password: String,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>
+}
+
+use crate::schema::users;
+#[derive(Insertable)]
+#[diesel(table_name = users)]
+pub struct NewUser<'a>{
+    pub username: &'a String,
+    pub password: &'a String
 }
 
 #[derive(Queryable, Selectable)]

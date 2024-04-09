@@ -3,7 +3,6 @@ use self::models::*;
 use diesel::prelude::*;
 use calorie_db::*;
 use uuid::Uuid;
-use chrono::{NaiveDateTime,Utc};
 
 fn get_product_by_id(conn:&mut PgConnection,id:&i32) -> Option<Product> {
     use self::schema::products::dsl::*;
@@ -45,12 +44,9 @@ fn create_product_for_user(conn:&mut PgConnection
     
     use crate::schema::products;
 
-    let create_time: NaiveDateTime = Utc::now().naive_utc();
-
     let new_product = NewUserProduct{product_name:product_name
         ,calories_1gram:calories_1gram
-        ,user_id:user_id
-        ,create_time:&create_time};
+        ,user_id:user_id};
         {
         let _temp = diesel::insert_into(products::table)
             .values(&new_product)
@@ -60,46 +56,13 @@ fn create_product_for_user(conn:&mut PgConnection
     }
 
 fn main(){
-    /* 
-    use self::schema::products::dsl::*;
 
-    let results = products
-        .filter(update_time.is_null())
-        .limit(5)
-        .select(Product::as_select())
-        .load(connection)
-        .expect("Error loading products");
-
-    println!("Displaying {} products", results.len());
-    for product in results { 
-        println!("{}",product.product_id);
-        println!("=====================");
-        println!("{}",product.product_name);
-    }
-    */
     let connection = &mut establish_connection();
-    /* 
-    if let Some(product) = get_product_by_id(connection,&1){
-        println!("{}",product.product_id);
-        println!("================");
-        println!("product_name: {}",product.product_name);
-        println!("calories_1gram: {:?}",product.calories_1gram);
-        println!("user_id: {:?}",product.user_id);
-        println!("create_time: {}",product.create_time);
-        println!("update_time: {:?}",product.update_time);
-    }
-    else{
-        println!("Id not found.")
-    }
-    let test_uuid = Some(Uuid::new_v4());
-    println!("Generated UUID: {:?}",test_uuid);
-    let products = get_products_by_user(connection, test_uuid);
-    println!("{}",products.len());
 
-    for product in products{
-        println!("{}",product.product_id)
+    if let Ok(user_uuid) = Uuid::parse_str(&mut "8733869e-6370-44e0-8364-2d649bfc14e3"){
+        create_product_for_user(connection,&"test_product", &5, &user_uuid)
+    } else {
+        println!("Failed to create uuid")
     }
-    */
-    create_product_for_user(connection,&"test_product", &5, &Uuid::new_v4())
 
 }

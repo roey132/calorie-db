@@ -4,7 +4,7 @@ CREATE TABLE "products" (
   "product_name" varchar NOT NULL,
   "calories_1gram" integer,
   "user_id" uuid,
-  "create_time" timestamp NOT NULL,
+  "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
 
@@ -14,15 +14,15 @@ CREATE TABLE "product_measures" (
   "is_primary_measure" bool,
   "measure_name" varchar NOT NULL,
   "measure_grams" integer NOT NULL,
-  "create_time" timestamp NOT NULL,
+  "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
 
 CREATE TABLE "users" (
-  "user_id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   "username" varchar NOT NULL,
   "password" varchar NOT NULL,
-  "create_time" timestamp NOT NULL,
+  "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
 
@@ -35,8 +35,8 @@ CREATE TABLE "user_meals" (
   "calories" integer,
   "meal_name" varchar,
   "meal_note" varchar,
-  "meal_time" timestamptz NOT NULL,
-  "create_time" timestamp NOT NULL,
+  "meal_time" timestamp NOT NULL,
+  "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
 
@@ -47,3 +47,31 @@ ALTER TABLE "user_meals" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("
 ALTER TABLE "products" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "user_meals" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.update_time = CURRENT_TIMESTAMP;
+   RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_table_modtime
+BEFORE UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER update_table_modtime
+BEFORE UPDATE ON user_meals
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER update_table_modtime
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER update_table_modtime
+BEFORE UPDATE ON product_measures
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();

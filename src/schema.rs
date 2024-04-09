@@ -33,7 +33,7 @@ diesel::table! {
         calories -> Nullable<Int4>,
         meal_name -> Nullable<Varchar>,
         meal_note -> Nullable<Varchar>,
-        meal_time -> Timestamptz,
+        meal_time -> Timestamp,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
     }
