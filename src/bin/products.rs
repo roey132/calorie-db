@@ -20,7 +20,6 @@ fn get_product_by_id(conn:&mut PgConnection,id:&i32) -> Option<Product> {
     }
 }
 
-
 fn get_products_by_user(conn:&mut PgConnection, id:Option<Uuid>) -> Vec<Product> {
     use self::schema::products::dsl::*;
     let mut query = products.into_boxed();
@@ -59,10 +58,9 @@ fn main(){
 
     let connection = &mut establish_connection();
 
-    if let Ok(user_uuid) = Uuid::parse_str(&mut "8733869e-6370-44e0-8364-2d649bfc14e3"){
+    if let Ok(user_uuid) = Uuid::parse_str(&mut "ebc8a710-a25f-4090-a45f-1e37cb0c7446"){
         create_product_for_user(connection,&"test_product", &5, &user_uuid)
     } else {
         println!("Failed to create uuid")
     }
-
 }

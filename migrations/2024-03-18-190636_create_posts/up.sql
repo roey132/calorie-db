@@ -20,7 +20,7 @@ CREATE TABLE "product_measures" (
 
 CREATE TABLE "users" (
   "user_id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "username" varchar NOT NULL,
+  "username" varchar NOT NULL UNIQUE,
   "password" varchar NOT NULL,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
