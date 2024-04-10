@@ -46,12 +46,12 @@ fn create_product_for_user(conn:&mut PgConnection
     let new_product = NewUserProduct{product_name:product_name
         ,calories_1gram:calories_1gram
         ,user_id:user_id};
-        {
-        let _temp = diesel::insert_into(products::table)
+        
+        diesel::insert_into(products::table)
             .values(&new_product)
             .execute(conn)
             .expect("Failed to insert new product for user");
-        }
+
     }
 
 fn main(){

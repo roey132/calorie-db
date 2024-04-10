@@ -5,18 +5,17 @@ use calorie_db::{schema::users, *};
 use self::models::*;
 use diesel::prelude::*;
 
-fn create_user(username: &String, password:&String ){
+fn create_user(username: &String, password:&String ) {
     let conn: &mut PgConnection = &mut establish_connection();
     let new_user = NewUser{
         username:username,
         password:password
     };
-    {
-    let _temp = diesel::insert_into(users::table)
+    
+    diesel::insert_into(users::table)
         .values(new_user)
         .execute(conn)
         .expect("Failed to insert new user");
-    }
 }
 fn get_user_uuid(user_name: &String) -> Result<Uuid,String>{
     let conn: &mut PgConnection = &mut establish_connection();
