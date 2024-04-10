@@ -36,7 +36,7 @@ fn get_user_uuid(user_name: &String) -> Result<Uuid,String>{
     }
 }
 fn main(){
-    //create_user(&"username".to_string(), &"password".to_string());
+    create_user(&"username".to_string(), &"password".to_string());
     let user_id = get_user_uuid(&"username".to_string());
     match user_id{
         Ok(value) => println!("found user uuid:{}",value),

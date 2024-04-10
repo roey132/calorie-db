@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use self::models::*;
-use diesel::prelude::*;
+use diesel::{prelude::*, result::Error};
 use calorie_db::*;
 use uuid::Uuid;
 
@@ -54,13 +54,34 @@ fn create_product_for_user(conn:&mut PgConnection
 
     }
 
+fn update_product_by_id(product_id:&i32
+    , product_name:&str
+    , calories_per_gram:&f64) -> Result<usize, Error>{
+
+    use self::schema::products;
+
+    let conn: &mut PgConnection = &mut establish_connection();
+    diesel::update(products::table)
+        .filter(products::product_id.eq(&product_id))
+        .set((products::product_name.eq(product_name),
+            products::calories_per_gram.eq(calories_per_gram))).execute(conn)
+    }
+
 fn main(){
 
     let connection = &mut establish_connection();
 
-    if let Ok(user_uuid) = Uuid::parse_str(&mut "ebc8a710-a25f-4090-a45f-1e37cb0c7446"){
+    if let Ok(user_uuid) = Uuid::parse_str(&mut "ff82ba2f-65cb-44e0-9055-19311d6ee0fd"){
         create_product_for_user(connection,&"test_product", &5.0, &user_uuid)
     } else {
         println!("Failed to create uuid")
+    }
+
+
+
+    if let Ok(output) = update_product_by_id(&2, &"test_update".to_string(), &50.0){
+        println!("Successfully updated product, {}",output)
+    } else {
+        println!("Failed to update product")
     }
 }
