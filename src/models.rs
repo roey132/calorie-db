@@ -31,9 +31,19 @@ pub struct ProductMeasure {
     pub measure_id: i32,
     pub default_measure: Option<bool>,
     pub measure_name: String,
-    pub measure_calories: i32,
+    pub measure_calories: f64,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
+}
+
+use crate::schema::product_measures;
+#[derive(Insertable)]
+#[diesel(table_name = product_measures)]
+pub struct NewProductMeasure<'a> {
+    pub product_id: &'a i32,
+    pub measure_name: &'a str,
+    pub measure_calories: &'a f64,
+    pub default_measure: &'a bool,
 }
 
 #[derive(Queryable, Selectable)]

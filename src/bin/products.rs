@@ -76,7 +76,7 @@ fn update_product_by_id(
 fn main() {
     let connection = &mut establish_connection();
 
-    if let Ok(user_uuid) = Uuid::parse_str(&mut "ff82ba2f-65cb-44e0-9055-19311d6ee0fd") {
+    if let Ok(user_uuid) = Uuid::parse_str(&mut "a0fc9dc5-4eb1-46ce-b473-416dfd243fa4") {
         create_product_for_user(connection, &"test_product", &5.0, &user_uuid)
     } else {
         println!("Failed to create uuid")

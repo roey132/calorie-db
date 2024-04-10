@@ -6,7 +6,7 @@ diesel::table! {
         measure_id -> Int4,
         default_measure -> Nullable<Bool>,
         measure_name -> Varchar,
-        measure_calories -> Int4,
+        measure_calories -> Float8,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
     }
@@ -54,4 +54,9 @@ diesel::joinable!(products -> users (user_id));
 diesel::joinable!(user_meals -> products (product_id));
 diesel::joinable!(user_meals -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(product_measures, products, user_meals, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    product_measures,
+    products,
+    user_meals,
+    users,
+);

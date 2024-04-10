@@ -10,10 +10,10 @@ CREATE TABLE "products" (
 
 CREATE TABLE "product_measures" (
   "product_id" integer NOT NULL,
-  "measure_id" integer PRIMARY KEY NOT NULL,
+  "measure_id" SERIAL PRIMARY KEY NOT NULL,
   "default_measure" boolean,
   "measure_name" varchar NOT NULL,
-  "measure_calories" integer NOT NULL,
+  "measure_calories" float NOT NULL,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
