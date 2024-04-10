@@ -8,7 +8,7 @@ use chrono::NaiveDateTime;
 pub struct Product {
     pub product_id: i32,
     pub product_name: String,
-    pub calories_1gram: Option<i32>,
+    pub calories_per_gram: Option<f64>,
     pub user_id: Option<Uuid>,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>
@@ -19,7 +19,7 @@ use crate::schema::products;
 #[diesel(table_name = products)]
 pub struct NewUserProduct<'a> {
     pub product_name: &'a str,
-    pub calories_1gram: &'a i32,
+    pub calories_per_gram: &'a f64,
     pub user_id: &'a Uuid,
 }
 
@@ -29,9 +29,9 @@ pub struct NewUserProduct<'a> {
 pub struct ProductMeasure{
     pub product_id: i32,
     pub measure_id: i32,
-    pub is_primary_measure: Option<bool>,
+    pub default_measure: Option<bool>,
     pub measure_name: String,
-    pub measure_grams: i32,
+    pub measure_calories: i32,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>
 }
@@ -64,7 +64,7 @@ pub struct UserMeal{
     pub product_id: Option<i32>,
     pub measure_id: Option<i32>,
     pub measure_count: Option<i32>,
-    pub calories: Option<i32>,
+    pub calories: Option<f64>,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
     pub meal_time: NaiveDateTime,

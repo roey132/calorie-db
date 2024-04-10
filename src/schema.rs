@@ -4,9 +4,9 @@ diesel::table! {
     product_measures (measure_id) {
         product_id -> Int4,
         measure_id -> Int4,
-        is_primary_measure -> Nullable<Bool>,
+        default_measure -> Nullable<Bool>,
         measure_name -> Varchar,
-        measure_grams -> Int4,
+        measure_calories -> Int4,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
     }
@@ -16,7 +16,7 @@ diesel::table! {
     products (product_id) {
         product_id -> Int4,
         product_name -> Varchar,
-        calories_1gram -> Nullable<Int4>,
+        calories_per_gram -> Nullable<Float8>,
         user_id -> Nullable<Uuid>,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
@@ -30,7 +30,7 @@ diesel::table! {
         product_id -> Nullable<Int4>,
         measure_id -> Nullable<Int4>,
         measure_count -> Nullable<Int4>,
-        calories -> Nullable<Int4>,
+        calories -> Nullable<Float8>,
         meal_name -> Nullable<Varchar>,
         meal_note -> Nullable<Varchar>,
         meal_time -> Timestamp,

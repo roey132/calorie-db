@@ -38,13 +38,13 @@ fn get_products_by_user(conn:&mut PgConnection, id:Option<Uuid>) -> Vec<Product>
 
 fn create_product_for_user(conn:&mut PgConnection
     , product_name:&str
-    , calories_1gram:&i32
+    , calories_per_gram:&f64
     , user_id:&Uuid ) {
     
     use crate::schema::products;
 
     let new_product = NewUserProduct{product_name:product_name
-        ,calories_1gram:calories_1gram
+        ,calories_per_gram:calories_per_gram
         ,user_id:user_id};
         
         diesel::insert_into(products::table)
@@ -59,7 +59,7 @@ fn main(){
     let connection = &mut establish_connection();
 
     if let Ok(user_uuid) = Uuid::parse_str(&mut "ebc8a710-a25f-4090-a45f-1e37cb0c7446"){
-        create_product_for_user(connection,&"test_product", &5, &user_uuid)
+        create_product_for_user(connection,&"test_product", &5.0, &user_uuid)
     } else {
         println!("Failed to create uuid")
     }

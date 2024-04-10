@@ -17,6 +17,7 @@ fn create_user(username: &String, password:&String ) {
         .execute(conn)
         .expect("Failed to insert new user");
 }
+
 fn get_user_uuid(user_name: &String) -> Result<Uuid,String>{
     let conn: &mut PgConnection = &mut establish_connection();
     use self::schema::users::dsl::*;
@@ -41,5 +42,4 @@ fn main(){
         Ok(value) => println!("found user uuid:{}",value),
         Err(msg) => println!("{}",msg)
     }
-    
 }
