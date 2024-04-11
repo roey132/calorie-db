@@ -8,6 +8,7 @@ mod models;
 mod product_measures;
 mod products;
 mod schema;
+mod user_meals;
 mod users;
 
 pub fn establish_connection() -> PgConnection {

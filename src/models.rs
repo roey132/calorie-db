@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -8,7 +9,7 @@ use uuid::Uuid;
 pub struct Product {
     pub product_id: i32,
     pub product_name: String,
-    pub calories_per_gram: Option<f64>,
+    pub calories_per_gram: f64,
     pub user_id: Option<Uuid>,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
@@ -72,12 +73,27 @@ pub struct UserMeal {
     pub meal_id: i32,
     pub user_id: Uuid,
     pub product_id: Option<i32>,
+    pub product_grams: Option<i32>,
     pub measure_id: Option<i32>,
     pub measure_count: Option<i32>,
-    pub calories: Option<f64>,
+    pub calories: f64,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
-    pub meal_time: NaiveDateTime,
+    pub meal_date: NaiveDate,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
 }
+
+use crate::schema::user_meals;
+#[derive(Insertable)]
+#[diesel(table_name = user_meals)]
+pub struct NewUserMealProduct {
+    pub user_id: Uuid,
+    pub product_id: i32,
+    pub calories: f64,
+    pub meal_name: Option<String>,
+    pub meal_note: Option<String>,
+    pub meal_date: NaiveDate,
+}
+
+pub struct NewUserMealMeasure {}

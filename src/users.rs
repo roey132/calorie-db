@@ -1,8 +1,7 @@
 #![allow(dead_code)]
-use uuid::Uuid;
-
 use self::models::*;
 use crate::{schema::users, *};
+use uuid::Uuid;
 
 fn create_user(username: &str, password: &str) {
     let conn: &mut PgConnection = &mut establish_connection();

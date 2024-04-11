@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE "products" (
   "product_id" SERIAL PRIMARY KEY NOT NULL,
   "product_name" varchar NOT NULL,
-  "calories_per_gram" float,
+  "calories_per_gram" float NOT NULL,
   "user_id" uuid,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
@@ -30,12 +30,13 @@ CREATE TABLE "user_meals" (
   "meal_id" integer PRIMARY KEY,
   "user_id" uuid NOT NULL,
   "product_id" integer,
+  "product_grams" integer,
   "measure_id" integer,
   "measure_count" integer,
-  "calories" float,
+  "calories" float NOT NULL,
   "meal_name" varchar,
   "meal_note" varchar,
-  "meal_time" timestamp NOT NULL,
+  "meal_date" date NOT NULL,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
