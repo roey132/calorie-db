@@ -4,8 +4,11 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
-pub mod models;
-pub mod schema;
+mod models;
+mod product_measures;
+mod products;
+mod schema;
+mod users;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -14,3 +17,5 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&databasse_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", databasse_url))
 }
+
+fn main() {}

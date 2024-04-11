@@ -19,7 +19,7 @@ use crate::schema::products;
 #[diesel(table_name = products)]
 pub struct NewUserProduct<'a> {
     pub product_name: &'a str,
-    pub calories_per_gram: &'a f64,
+    pub calories_per_gram: f64,
     pub user_id: &'a Uuid,
 }
 
@@ -40,10 +40,10 @@ use crate::schema::product_measures;
 #[derive(Insertable)]
 #[diesel(table_name = product_measures)]
 pub struct NewProductMeasure<'a> {
-    pub product_id: &'a i32,
+    pub product_id: i32,
     pub measure_name: &'a str,
-    pub measure_calories: &'a f64,
-    pub default_measure: &'a bool,
+    pub measure_calories: f64,
+    pub default_measure: bool,
 }
 
 #[derive(Queryable, Selectable)]
@@ -61,8 +61,8 @@ use crate::schema::users;
 #[derive(Insertable)]
 #[diesel(table_name = users)]
 pub struct NewUser<'a> {
-    pub username: &'a String,
-    pub password: &'a String,
+    pub username: &'a str,
+    pub password: &'a str,
 }
 
 #[derive(Queryable, Selectable)]
