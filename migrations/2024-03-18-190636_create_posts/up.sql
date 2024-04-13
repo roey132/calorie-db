@@ -29,10 +29,10 @@ CREATE TABLE "users" (
 CREATE TABLE "user_meals" (
   "meal_id" integer PRIMARY KEY,
   "user_id" uuid NOT NULL,
-  "product_id" integer,
+  "product_id" integer NOT NULL,
   "product_grams" integer,
   "measure_id" integer,
-  "measure_count" integer,
+  "measure_count" float,
   "calories" float NOT NULL,
   "meal_name" varchar,
   "meal_note" varchar,

@@ -72,10 +72,10 @@ pub struct NewUser<'a> {
 pub struct UserMeal {
     pub meal_id: i32,
     pub user_id: Uuid,
-    pub product_id: Option<i32>,
+    pub product_id: i32,
     pub product_grams: Option<i32>,
     pub measure_id: Option<i32>,
-    pub measure_count: Option<i32>,
+    pub measure_count: Option<f64>,
     pub calories: f64,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
@@ -87,13 +87,25 @@ pub struct UserMeal {
 use crate::schema::user_meals;
 #[derive(Insertable)]
 #[diesel(table_name = user_meals)]
-pub struct NewUserMealProduct {
-    pub user_id: Uuid,
+pub struct NewUserMealProduct<'a> {
+    pub user_id: &'a Uuid,
     pub product_id: i32,
+    pub product_grams: i32,
     pub calories: f64,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
     pub meal_date: NaiveDate,
 }
 
-pub struct NewUserMealMeasure {}
+#[derive(Insertable)]
+#[diesel(table_name = user_meals)]
+pub struct NewUserMealMeasure<'a> {
+    pub user_id: &'a Uuid,
+    pub product_id: i32,
+    pub measure_id: i32,
+    pub measure_count: f64,
+    pub calories: f64,
+    pub meal_name: Option<String>,
+    pub meal_note: Option<String>,
+    pub meal_date: NaiveDate,
+}

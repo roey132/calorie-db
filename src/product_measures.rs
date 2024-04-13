@@ -26,7 +26,7 @@ fn create_product_measure(
         .execute(conn)
 }
 
-fn get_product_measures_by_product(product_id: i32) -> Result<Vec<ProductMeasure>, Error> {
+pub fn get_product_measures_by_product(product_id: i32) -> Result<Vec<ProductMeasure>, Error> {
     use self::schema::product_measures;
     let conn = &mut establish_connection();
     let results = product_measures::table
@@ -37,7 +37,7 @@ fn get_product_measures_by_product(product_id: i32) -> Result<Vec<ProductMeasure
     results
 }
 
-fn get_product_measure_by_measure_id(measure_id: i32) -> Result<Option<ProductMeasure>, Error> {
+pub fn get_product_measure_by_measure_id(measure_id: i32) -> Result<ProductMeasure, Error> {
     use self::schema::product_measures;
 
     let conn = &mut establish_connection();
@@ -49,9 +49,9 @@ fn get_product_measure_by_measure_id(measure_id: i32) -> Result<Option<ProductMe
         .load(conn)?;
 
     if results.len() == 1 {
-        Ok(Some(results.remove(0)))
+        Ok(results.remove(0))
     } else {
-        Ok(None)
+        Err(Error::NotFound)
     }
 }
 
@@ -63,5 +63,5 @@ fn test() {
 
     get_product_measures_by_product(3).unwrap();
 
-    get_product_measure_by_measure_id(1).unwrap().unwrap();
+    get_product_measure_by_measure_id(1).unwrap();
 }

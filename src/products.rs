@@ -4,19 +4,18 @@ use crate::*;
 use diesel::result::Error;
 use uuid::Uuid;
 
-fn get_product_by_id(conn: &mut PgConnection, id: i32) -> Option<Product> {
+pub fn get_product_by_id(conn: &mut PgConnection, id: i32) -> Result<Product, Error> {
     use self::schema::products::dsl::*;
     let mut results = products
         .filter(product_id.eq(id))
         .limit(1)
         .select(Product::as_select())
-        .load(conn)
-        .expect("Error loading product");
+        .load(conn)?;
 
     if results.len() == 1 {
-        Some(results.remove(0))
+        Ok(results.remove(0))
     } else {
-        None
+        Err(Error::NotFound)
     }
 }
 

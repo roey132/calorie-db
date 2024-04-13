@@ -27,10 +27,10 @@ diesel::table! {
     user_meals (meal_id) {
         meal_id -> Int4,
         user_id -> Uuid,
-        product_id -> Nullable<Int4>,
+        product_id -> Int4,
         product_grams -> Nullable<Int4>,
         measure_id -> Nullable<Int4>,
-        measure_count -> Nullable<Int4>,
+        measure_count -> Nullable<Float8>,
         calories -> Float8,
         meal_name -> Nullable<Varchar>,
         meal_note -> Nullable<Varchar>,

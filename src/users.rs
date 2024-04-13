@@ -16,7 +16,7 @@ fn create_user(username: &str, password: &str) {
         .expect("Failed to insert new user");
 }
 
-fn get_user_uuid(user_name: &str) -> Result<Uuid, &'static str> {
+pub fn get_user_uuid(user_name: &str) -> Result<Uuid, &'static str> {
     let conn: &mut PgConnection = &mut establish_connection();
     use self::schema::users::dsl::*;
 
