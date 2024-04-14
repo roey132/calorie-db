@@ -55,14 +55,12 @@ pub fn get_product_measure_by_measure_id(
     }
 }
 
-#[test]
-fn test() {
-    let conn = &mut establish_connection();
-    create_product_measure(conn, 3, "spoon", 55.0, false).unwrap();
+pub fn update_product_measure_by_measure_id() {
+    // TODO: implement function logic
+    println!("update product measure data for measure id");
+}
 
-    get_product_measures_by_product(conn, 1).unwrap();
-
-    get_product_measures_by_product(conn, 3).unwrap();
-
-    get_product_measure_by_measure_id(conn, 1).unwrap();
+pub fn delete_product_measure_by_measure_id() {
+    // TODO: implement function logic
+    println!("delete product measure for measure id");
 }

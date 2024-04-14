@@ -68,6 +68,11 @@ pub fn update_product_by_id(
         .execute(conn)
 }
 
+pub fn delete_product_by_id() {
+    // TODO: implement function logic
+    println!("delete product by product id")
+}
+
 #[test]
 fn test() {
     let connection = &mut establish_connection();

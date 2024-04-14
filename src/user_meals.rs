@@ -61,3 +61,18 @@ pub fn create_user_meal_measure(
         .values(new_meal)
         .execute(conn)
 }
+
+pub fn get_user_meal_by_id() {
+    // TODO: implement function logic
+    println!("get meal data by meal id");
+}
+
+pub fn update_user_meal_by_id() {
+    // TODO: implement function logic
+    println!("update meal data by meal id");
+}
+
+pub fn delete_user_meal_by_id() {
+    // TODO: implement function logic
+    println!("delete meal by id");
+}

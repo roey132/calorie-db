@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use chrono::NaiveDate;
 use rand::{distributions::Alphanumeric, Rng};
 
