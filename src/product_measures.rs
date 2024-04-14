@@ -4,7 +4,7 @@ use crate::models::*;
 use crate::*;
 use diesel::result::Error::{self};
 
-fn create_product_measure(
+pub fn create_product_measure(
     conn: &mut PgConnection,
     product_id: i32,
     measure_name: &str,

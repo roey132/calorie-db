@@ -27,7 +27,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "user_meals" (
-  "meal_id" integer PRIMARY KEY,
+  "meal_id" SERIAL PRIMARY KEY,
   "user_id" uuid NOT NULL,
   "product_id" integer NOT NULL,
   "product_grams" integer,

@@ -4,7 +4,7 @@ use chrono::NaiveDate;
 use diesel::result::Error;
 use uuid::Uuid;
 
-fn create_user_meal_product(
+pub fn create_user_meal_product(
     conn: &mut PgConnection,
     user_id: &Uuid,
     product_id: i32,
@@ -33,7 +33,7 @@ fn create_user_meal_product(
         .execute(conn)
 }
 
-fn create_user_meal_measure(
+pub fn create_user_meal_measure(
     conn: &mut PgConnection,
     user_id: &Uuid,
     product_id: i32,

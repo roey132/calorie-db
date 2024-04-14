@@ -19,7 +19,10 @@ pub fn get_product_by_id(conn: &mut PgConnection, id: i32) -> Result<Product, Er
     }
 }
 
-pub fn get_products_by_user(conn: &mut PgConnection, id: Option<Uuid>) -> Vec<Product> {
+pub fn get_products_by_user(
+    conn: &mut PgConnection,
+    id: Option<Uuid>,
+) -> Result<Vec<Product>, Error> {
     use self::schema::products::dsl::*;
     let mut query = products.into_boxed();
     if let Some(value) = id {
@@ -27,20 +30,15 @@ pub fn get_products_by_user(conn: &mut PgConnection, id: Option<Uuid>) -> Vec<Pr
     } else {
         query = query.filter(user_id.is_null())
     }
-    let results = query
-        .select(Product::as_select())
-        .load(conn)
-        .expect("Error loading products");
-
-    results
+    query.select(Product::as_select()).load(conn)
 }
 
-fn create_product_for_user(
+pub fn create_product_for_user(
     conn: &mut PgConnection,
     product_name: &str,
     calories_per_gram: f64,
     user_id: &Uuid,
-) {
+) -> Result<usize, Error> {
     use crate::schema::products;
 
     let new_product = NewUserProduct {
@@ -52,10 +50,9 @@ fn create_product_for_user(
     diesel::insert_into(products::table)
         .values(&new_product)
         .execute(conn)
-        .expect("Failed to insert new product for user");
 }
 
-fn update_product_by_id(
+pub fn update_product_by_id(
     conn: &mut PgConnection,
     product_id: i32,
     product_name: &str,
@@ -76,7 +73,7 @@ fn test() {
     let connection = &mut establish_connection();
 
     if let Ok(user_uuid) = Uuid::parse_str(&mut "a0fc9dc5-4eb1-46ce-b473-416dfd243fa4") {
-        create_product_for_user(connection, &"test_product", 5.0, &user_uuid)
+        create_product_for_user(connection, &"test_product", 5.0, &user_uuid).unwrap();
     } else {
         println!("Failed to create uuid")
     }
