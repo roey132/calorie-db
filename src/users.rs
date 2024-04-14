@@ -3,8 +3,7 @@ use self::models::*;
 use crate::{schema::users, *};
 use uuid::Uuid;
 
-fn create_user(username: &str, password: &str) {
-    let conn: &mut PgConnection = &mut establish_connection();
+fn create_user(conn: &mut PgConnection, username: &str, password: &str) {
     let new_user = NewUser {
         username: username,
         password: password,
@@ -16,8 +15,7 @@ fn create_user(username: &str, password: &str) {
         .expect("Failed to insert new user");
 }
 
-pub fn get_user_uuid(user_name: &str) -> Result<Uuid, &'static str> {
-    let conn: &mut PgConnection = &mut establish_connection();
+pub fn get_user_uuid(conn: &mut PgConnection, user_name: &str) -> Result<Uuid, &'static str> {
     use self::schema::users::dsl::*;
 
     let mut results = users
@@ -34,8 +32,9 @@ pub fn get_user_uuid(user_name: &str) -> Result<Uuid, &'static str> {
     }
 }
 fn main() {
-    create_user(&"username".to_string(), &"password".to_string());
-    let user_id = get_user_uuid(&"username".to_string());
+    let conn = &mut establish_connection();
+    create_user(conn, &"username".to_string(), &"password".to_string());
+    let user_id = get_user_uuid(conn, &"username".to_string());
     match user_id {
         Ok(value) => println!("found user uuid:{}", value),
         Err(msg) => println!("{}", msg),

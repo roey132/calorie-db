@@ -19,7 +19,7 @@ pub fn get_product_by_id(conn: &mut PgConnection, id: i32) -> Result<Product, Er
     }
 }
 
-fn get_products_by_user(conn: &mut PgConnection, id: Option<Uuid>) -> Vec<Product> {
+pub fn get_products_by_user(conn: &mut PgConnection, id: Option<Uuid>) -> Vec<Product> {
     use self::schema::products::dsl::*;
     let mut query = products.into_boxed();
     if let Some(value) = id {
@@ -56,13 +56,12 @@ fn create_product_for_user(
 }
 
 fn update_product_by_id(
+    conn: &mut PgConnection,
     product_id: i32,
     product_name: &str,
     calories_per_gram: f64,
 ) -> Result<usize, Error> {
     use self::schema::products;
-
-    let conn: &mut PgConnection = &mut establish_connection();
     diesel::update(products::table)
         .filter(products::product_id.eq(&product_id))
         .set((
@@ -71,6 +70,7 @@ fn update_product_by_id(
         ))
         .execute(conn)
 }
+
 #[test]
 fn test() {
     let connection = &mut establish_connection();
@@ -81,7 +81,7 @@ fn test() {
         println!("Failed to create uuid")
     }
 
-    if let Ok(output) = update_product_by_id(2, "test_update", 50.0) {
+    if let Ok(output) = update_product_by_id(connection, 2, "test_update", 50.0) {
         println!("Successfully updated product, {}", output)
     } else {
         println!("Failed to update product")

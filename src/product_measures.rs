@@ -5,15 +5,13 @@ use crate::*;
 use diesel::result::Error::{self};
 
 fn create_product_measure(
+    conn: &mut PgConnection,
     product_id: i32,
     measure_name: &str,
     measure_calories: f64,
     default_measure: bool,
 ) -> Result<usize, Error> {
     use self::schema::product_measures;
-
-    let conn = &mut establish_connection();
-
     let new_product_measure = NewProductMeasure {
         product_id: product_id,
         measure_name: measure_name,
@@ -26,9 +24,11 @@ fn create_product_measure(
         .execute(conn)
 }
 
-pub fn get_product_measures_by_product(product_id: i32) -> Result<Vec<ProductMeasure>, Error> {
+pub fn get_product_measures_by_product(
+    conn: &mut PgConnection,
+    product_id: i32,
+) -> Result<Vec<ProductMeasure>, Error> {
     use self::schema::product_measures;
-    let conn = &mut establish_connection();
     let results = product_measures::table
         .filter(product_measures::product_id.eq(product_id))
         .select(product_measures::table::all_columns())
@@ -37,11 +37,11 @@ pub fn get_product_measures_by_product(product_id: i32) -> Result<Vec<ProductMea
     results
 }
 
-pub fn get_product_measure_by_measure_id(measure_id: i32) -> Result<ProductMeasure, Error> {
+pub fn get_product_measure_by_measure_id(
+    conn: &mut PgConnection,
+    measure_id: i32,
+) -> Result<ProductMeasure, Error> {
     use self::schema::product_measures;
-
-    let conn = &mut establish_connection();
-
     let mut results = product_measures::table
         .filter(product_measures::measure_id.eq(measure_id))
         .limit(1)
@@ -57,11 +57,12 @@ pub fn get_product_measure_by_measure_id(measure_id: i32) -> Result<ProductMeasu
 
 #[test]
 fn test() {
-    create_product_measure(3, "spoon", 55.0, false).unwrap();
+    let conn = &mut establish_connection();
+    create_product_measure(conn, 3, "spoon", 55.0, false).unwrap();
 
-    get_product_measures_by_product(1).unwrap();
+    get_product_measures_by_product(conn, 1).unwrap();
 
-    get_product_measures_by_product(3).unwrap();
+    get_product_measures_by_product(conn, 3).unwrap();
 
-    get_product_measure_by_measure_id(1).unwrap();
+    get_product_measure_by_measure_id(conn, 1).unwrap();
 }
