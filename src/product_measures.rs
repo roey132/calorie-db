@@ -55,12 +55,29 @@ pub fn get_product_measure_by_measure_id(
     }
 }
 
-pub fn update_product_measure_by_measure_id() {
-    // TODO: implement function logic
-    println!("update product measure data for measure id");
+pub fn update_product_measure_by_measure_id(
+    conn: &mut PgConnection,
+    measure_id: i32,
+    measure_name: &str,
+    measure_calories: f64,
+) -> Result<usize, Error> {
+    use self::schema::product_measures;
+    diesel::update(product_measures::table)
+        .filter(product_measures::measure_id.eq(measure_id))
+        .set((
+            product_measures::measure_name.eq(measure_name),
+            product_measures::measure_calories.eq(measure_calories),
+        ))
+        .execute(conn)
 }
 
-pub fn delete_product_measure_by_measure_id() {
-    // TODO: implement function logic
-    println!("delete product measure for measure id");
+pub fn delete_product_measure_by_measure_id(
+    conn: &mut PgConnection,
+    measure_id: i32,
+) -> Result<usize, Error> {
+    use self::schema::product_measures;
+
+    diesel::delete(product_measures::table)
+        .filter(product_measures::measure_id.eq(measure_id))
+        .execute(conn)
 }
