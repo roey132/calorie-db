@@ -1,7 +1,7 @@
 use self::models::*;
 use crate::{schema::user_meals, *};
 use chrono::NaiveDate;
-use diesel::result::Error;
+use diesel::result::Error::{self, NotFound};
 use uuid::Uuid;
 
 pub fn create_user_meal_product(
@@ -62,9 +62,16 @@ pub fn create_user_meal_measure(
         .execute(conn)
 }
 
-pub fn get_user_meal_by_id() {
-    // TODO: implement function logic
-    println!("get meal data by meal id");
+pub fn get_user_meal_by_id(conn: &mut PgConnection, meal_id: i32) -> Result<UserMeal, Error> {
+    let mut results: Vec<UserMeal> = user_meals::table
+        .filter(user_meals::meal_id.eq(meal_id))
+        .select(user_meals::table::all_columns())
+        .load(conn)?;
+    if results.len() == 1 {
+        Ok(results.remove(0))
+    } else {
+        Err(NotFound)
+    }
 }
 
 pub fn update_user_meal_by_id() {
@@ -72,7 +79,8 @@ pub fn update_user_meal_by_id() {
     println!("update meal data by meal id");
 }
 
-pub fn delete_user_meal_by_id() {
-    // TODO: implement function logic
-    println!("delete meal by id");
+pub fn delete_user_meal_by_id(conn: &mut PgConnection, meal_id: i32) -> Result<usize, Error> {
+    diesel::delete(user_meals::table)
+        .filter(user_meals::meal_id.eq(meal_id))
+        .execute(conn)
 }
