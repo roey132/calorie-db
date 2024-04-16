@@ -68,24 +68,9 @@ pub fn update_product_by_id(
         .execute(conn)
 }
 
-pub fn delete_product_by_id() {
-    // TODO: implement function logic
-    println!("delete product by product id")
-}
-
-#[test]
-fn test() {
-    let connection = &mut establish_connection();
-
-    if let Ok(user_uuid) = Uuid::parse_str(&mut "a0fc9dc5-4eb1-46ce-b473-416dfd243fa4") {
-        create_product_for_user(connection, &"test_product", 5.0, &user_uuid).unwrap();
-    } else {
-        println!("Failed to create uuid")
-    }
-
-    if let Ok(output) = update_product_by_id(connection, 2, "test_update", 50.0) {
-        println!("Successfully updated product, {}", output)
-    } else {
-        println!("Failed to update product")
-    }
+pub fn delete_product_by_id(conn: &mut PgConnection, id: i32) -> Result<usize, Error> {
+    use schema::products;
+    diesel::delete(products::table)
+        .filter(products::product_id.eq(id))
+        .execute(conn)
 }
