@@ -1,3 +1,5 @@
+DROP VIEW user_meals_calculated;
+
 DROP TRIGGER IF EXISTS update_table_modtime ON product_measures;
 DROP TRIGGER IF EXISTS update_table_modtime ON user_meals;
 DROP TRIGGER IF EXISTS update_table_modtime ON products;
@@ -15,3 +17,6 @@ DROP TABLE product_measures;
 DROP TABLE user_meals;
 DROP TABLE users;
 DROP TABLE products;
+
+DROP TYPE meal_type;
+

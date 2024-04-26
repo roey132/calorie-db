@@ -1,5 +1,11 @@
 // @generated automatically by Diesel CLI.
 
+pub mod sql_types {
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "meal_type"))]
+    pub struct MealType;
+}
+
 diesel::table! {
     product_measures (measure_id) {
         product_id -> Int4,
@@ -24,9 +30,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::MealType;
+
     user_meals (meal_id) {
         meal_id -> Int4,
         user_id -> Uuid,
+        meal_type -> MealType,
         product_id -> Int4,
         product_grams -> Nullable<Int4>,
         measure_id -> Nullable<Int4>,

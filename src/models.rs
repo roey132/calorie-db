@@ -1,6 +1,13 @@
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
+use diesel::deserialize;
+use diesel::deserialize::FromSql;
+use diesel::deserialize::FromSqlRow;
+use diesel::expression::AsExpression;
+use diesel::pg::{Pg, PgValue};
 use diesel::prelude::*;
+use diesel::serialize::{IsNull, Output, ToSql};
+use std::io::Write;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable)]
@@ -58,6 +65,7 @@ pub struct User {
     pub update_time: Option<NaiveDateTime>,
 }
 
+use crate::schema::sql_types::MealType;
 use crate::schema::users;
 #[derive(Insertable)]
 #[diesel(table_name = users)]
@@ -66,12 +74,41 @@ pub struct NewUser<'a> {
     pub password: &'a str,
 }
 
-#[derive(Queryable, Selectable)]
+#[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq)]
+#[sql_type = "crate::schema::sql_types::MealType"]
+pub enum MealEnum {
+    Calories,
+    Measure,
+    Product,
+}
+impl FromSql<MealType, Pg> for MealEnum {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match bytes.as_bytes() {
+            b"Calories" => Ok(MealEnum::Calories),
+            b"Measure" => Ok(MealEnum::Measure),
+            b"Product" => Ok(MealEnum::Product),
+            _ => Err("Unrecognized enum variant".into()),
+        }
+    }
+}
+impl ToSql<MealType, Pg> for MealEnum {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        match *self {
+            MealEnum::Calories => out.write_all(b"Calories")?,
+            MealEnum::Measure => out.write_all(b"Measure")?,
+            MealEnum::Product => out.write_all(b"Products")?,
+        }
+        Ok(IsNull::No)
+    }
+}
+
+#[derive(Insertable, Queryable, Debug, PartialEq)]
 #[diesel(table_name = crate::schema::user_meals)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct UserMeal {
     pub meal_id: i32,
     pub user_id: Uuid,
+    pub meal_type: MealEnum,
     pub product_id: i32,
     pub product_grams: Option<i32>,
     pub measure_id: Option<i32>,
