@@ -10,6 +10,7 @@ mod products;
 mod schema;
 mod test;
 mod user_meals;
+mod user_meals_calculated;
 mod users;
 
 pub fn establish_connection() -> PgConnection {

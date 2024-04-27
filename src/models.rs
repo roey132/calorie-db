@@ -148,6 +148,7 @@ pub struct NewUserMealMeasure<'a> {
 }
 
 #[derive(Queryable)]
+#[diesel(table_name = crate::user_meals_calculated::user_meals)]
 pub struct UserMealsCalculated {
     pub meal_id: i32,
     pub user_id: Uuid,
