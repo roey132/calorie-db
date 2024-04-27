@@ -146,3 +146,15 @@ pub struct NewUserMealMeasure<'a> {
     pub meal_note: Option<String>,
     pub meal_date: NaiveDate,
 }
+
+#[derive(Queryable)]
+pub struct UserMealsCalculated {
+    pub meal_id: i32,
+    pub user_id: Uuid,
+    pub meal_type: MealEnum,
+    pub product_name: Option<String>,
+    pub product_grams: Option<i32>,
+    pub measure_name: Option<String>,
+    pub measure_count: Option<f64>,
+    pub meal_date: NaiveDate,
+}
