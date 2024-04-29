@@ -33,11 +33,11 @@ CREATE TABLE "user_meals" (
   "meal_id" SERIAL PRIMARY KEY,
   "user_id" uuid NOT NULL,
   "meal_type" meal_type NOT NULL,
-  "product_id" integer NOT NULL,
+  "product_id" integer,
   "product_grams" integer,
   "measure_id" integer,
   "measure_count" float,
-  "calories" float NOT NULL,
+  "calories" float,
   "meal_name" varchar,
   "meal_note" varchar,
   "meal_date" date NOT NULL,
@@ -123,6 +123,6 @@ else
 	null
 end as calc_calories
 from user_meals um 
-join products p on p.product_id = um.product_id 
-join product_measures pm on pm.product_id = um.product_id and pm.measure_id = um.measure_id;
+left join products p on p.product_id = um.product_id 
+left join product_measures pm on pm.product_id = um.product_id and pm.measure_id = um.measure_id;
 

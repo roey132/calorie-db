@@ -96,7 +96,7 @@ impl ToSql<MealType, Pg> for MealEnum {
         match *self {
             MealEnum::Calories => out.write_all(b"Calories")?,
             MealEnum::Measure => out.write_all(b"Measure")?,
-            MealEnum::Product => out.write_all(b"Products")?,
+            MealEnum::Product => out.write_all(b"Product")?,
         }
         Ok(IsNull::No)
     }
@@ -109,11 +109,11 @@ pub struct UserMeal {
     pub meal_id: i32,
     pub user_id: Uuid,
     pub meal_type: MealEnum,
-    pub product_id: i32,
+    pub product_id: Option<i32>,
     pub product_grams: Option<i32>,
     pub measure_id: Option<i32>,
     pub measure_count: Option<f64>,
-    pub calories: f64,
+    pub calories: Option<f64>,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
     pub meal_date: NaiveDate,
@@ -126,9 +126,9 @@ use crate::schema::user_meals;
 #[diesel(table_name = user_meals)]
 pub struct NewUserMealProduct<'a> {
     pub user_id: &'a Uuid,
+    pub meal_type: MealEnum,
     pub product_id: i32,
     pub product_grams: i32,
-    pub calories: f64,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,
     pub meal_date: NaiveDate,
@@ -138,9 +138,20 @@ pub struct NewUserMealProduct<'a> {
 #[diesel(table_name = user_meals)]
 pub struct NewUserMealMeasure<'a> {
     pub user_id: &'a Uuid,
+    pub meal_type: MealEnum,
     pub product_id: i32,
     pub measure_id: i32,
     pub measure_count: f64,
+    pub meal_name: Option<String>,
+    pub meal_note: Option<String>,
+    pub meal_date: NaiveDate,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = user_meals)]
+pub struct NewUserMealCalories<'a> {
+    pub user_id: &'a Uuid,
+    pub meal_type: MealEnum,
     pub calories: f64,
     pub meal_name: Option<String>,
     pub meal_note: Option<String>,

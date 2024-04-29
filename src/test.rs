@@ -63,4 +63,13 @@ fn tests() {
         date,
     )
     .unwrap();
+    create_user_meal_calories(
+        conn,
+        &user_id,
+        Some("Test Calories Meal Name".to_string()),
+        None,
+        150.0,
+        date,
+    )
+    .unwrap();
 }

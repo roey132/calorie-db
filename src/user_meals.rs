@@ -13,16 +13,13 @@ pub fn create_user_meal_product(
     meal_note: Option<String>,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {
-    let product = products::get_product_by_id(conn, product_id)?;
-
-    let product_cal_per_gram = product.calories_per_gram;
-    let calories = product_cal_per_gram * product_grams as f64;
+    let meal_type = MealEnum::Product;
 
     let new_meal = NewUserMealProduct {
         user_id,
+        meal_type,
         product_id,
         product_grams,
-        calories,
         meal_name,
         meal_note,
         meal_date,
@@ -43,14 +40,36 @@ pub fn create_user_meal_measure(
     meal_note: Option<String>,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {
-    let measure = product_measures::get_product_measure_by_measure_id(conn, measure_id)?;
-    let measure_calories = measure.measure_calories;
-    let calories = measure_calories * measure_count;
+    let meal_type = MealEnum::Measure;
+
     let new_meal = NewUserMealMeasure {
         user_id,
+        meal_type,
         product_id,
         measure_id,
         measure_count,
+        meal_name,
+        meal_note,
+        meal_date,
+    };
+
+    diesel::insert_into(user_meals::table)
+        .values(new_meal)
+        .execute(conn)
+}
+pub fn create_user_meal_calories(
+    conn: &mut PgConnection,
+    user_id: &Uuid,
+    meal_name: Option<String>,
+    meal_note: Option<String>,
+    calories: f64,
+    meal_date: NaiveDate,
+) -> Result<usize, Error> {
+    let meal_type = MealEnum::Calories;
+
+    let new_meal = NewUserMealCalories {
+        user_id,
+        meal_type,
         calories,
         meal_name,
         meal_note,
