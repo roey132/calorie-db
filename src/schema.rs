@@ -15,6 +15,7 @@ diesel::table! {
         measure_calories -> Float8,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
+        delete_time -> Nullable<Timestamp>,
     }
 }
 
@@ -26,6 +27,7 @@ diesel::table! {
         user_id -> Nullable<Uuid>,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
+        delete_time -> Nullable<Timestamp>,
     }
 }
 

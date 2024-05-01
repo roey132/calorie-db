@@ -72,12 +72,14 @@ pub fn update_product_measure_by_measure_id(
 }
 
 pub fn delete_product_measure_by_measure_id(
+    // soft deletes product measure
     conn: &mut PgConnection,
     measure_id: i32,
 ) -> Result<usize, Error> {
     use self::schema::product_measures;
 
-    diesel::delete(product_measures::table)
+    diesel::update(product_measures::table)
         .filter(product_measures::measure_id.eq(measure_id))
+        .set(product_measures::delete_time.eq(diesel::dsl::now))
         .execute(conn)
 }

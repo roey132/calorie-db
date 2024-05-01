@@ -20,6 +20,7 @@ pub struct Product {
     pub user_id: Option<Uuid>,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
+    pub delete_time: Option<NaiveDateTime>,
 }
 
 use crate::schema::products;
@@ -42,6 +43,7 @@ pub struct ProductMeasure {
     pub measure_calories: f64,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
+    pub delete_time: Option<NaiveDateTime>,
 }
 
 use crate::schema::product_measures;

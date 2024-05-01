@@ -93,9 +93,37 @@ pub fn get_user_meal_by_id(conn: &mut PgConnection, meal_id: i32) -> Result<User
     }
 }
 
-pub fn update_user_meal_by_id() {
-    // TODO: implement function logic
-    println!("update meal data by meal id");
+pub fn update_user_meal_product_by_meal_id(
+    conn: &mut PgConnection,
+    meal_id: i32,
+    product_grams: i32,
+) -> Result<usize, Error> {
+    diesel::update(user_meals::table)
+        .filter(user_meals::meal_id.eq(meal_id))
+        .set(user_meals::product_grams.eq(product_grams))
+        .execute(conn)
+}
+
+pub fn update_user_meal_measure_by_meal_id(
+    conn: &mut PgConnection,
+    meal_id: i32,
+    measure_count: f64,
+) -> Result<usize, Error> {
+    diesel::update(user_meals::table)
+        .filter(user_meals::meal_id.eq(meal_id))
+        .set(user_meals::measure_count.eq(measure_count))
+        .execute(conn)
+}
+
+pub fn update_user_meal_calories_by_meal_id(
+    conn: &mut PgConnection,
+    meal_id: i32,
+    calories: f64,
+) -> Result<usize, Error> {
+    diesel::update(user_meals::table)
+        .filter(user_meals::meal_id.eq(meal_id))
+        .set(user_meals::calories.eq(calories))
+        .execute(conn)
 }
 
 pub fn delete_user_meal_by_id(conn: &mut PgConnection, meal_id: i32) -> Result<usize, Error> {

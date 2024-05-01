@@ -26,7 +26,9 @@ pub fn get_products_by_user(
     use self::schema::products::dsl::*;
     let mut query = products.into_boxed();
     if let Some(value) = id {
-        query = query.filter(user_id.eq(value))
+        query = query
+            .filter(user_id.eq(value))
+            .filter(update_time.is_null())
     } else {
         query = query.filter(user_id.is_null())
     }
@@ -69,8 +71,10 @@ pub fn update_product_by_id(
 }
 
 pub fn delete_product_by_id(conn: &mut PgConnection, id: i32) -> Result<usize, Error> {
+    // soft deletes the products (sets delete time)
     use schema::products;
-    diesel::delete(products::table)
+    diesel::update(products::table)
         .filter(products::product_id.eq(id))
+        .set(products::delete_time.eq(diesel::dsl::now))
         .execute(conn)
 }

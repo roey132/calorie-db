@@ -5,7 +5,8 @@ CREATE TABLE "products" (
   "calories_per_gram" float NOT NULL,
   "user_id" uuid,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "update_time" timestamp
+  "update_time" timestamp,
+  "delete_time" timestamp
 );
 
 CREATE TABLE "product_measures" (
@@ -15,7 +16,8 @@ CREATE TABLE "product_measures" (
   "measure_name" varchar NOT NULL,
   "measure_calories" float NOT NULL,
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "update_time" timestamp
+  "update_time" timestamp,
+  "delete_time" timestamp
 );
 
 CREATE TABLE "users" (
@@ -25,7 +27,6 @@ CREATE TABLE "users" (
   "create_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "update_time" timestamp
 );
-
 
 CREATE TYPE meal_type AS ENUM ('Calories','Measure','Product');
 
