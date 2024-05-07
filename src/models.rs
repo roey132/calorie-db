@@ -77,7 +77,7 @@ pub struct NewUser<'a> {
 }
 
 #[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq)]
-#[sql_type = "crate::schema::sql_types::MealType"]
+#[diesel(sql_type = crate::schema::sql_types::MealType)]
 pub enum MealEnum {
     Calories,
     Measure,
