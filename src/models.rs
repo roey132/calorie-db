@@ -7,10 +7,12 @@ use diesel::expression::AsExpression;
 use diesel::pg::{Pg, PgValue};
 use diesel::prelude::*;
 use diesel::serialize::{IsNull, Output, ToSql};
+use serde::Deserialize;
+use serde::Serialize;
 use std::io::Write;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Deserialize, Serialize)]
 #[diesel(table_name = crate::schema::products)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Product {

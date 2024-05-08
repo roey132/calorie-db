@@ -28,12 +28,15 @@ pub fn get_products_by_user(
     if let Some(value) = id {
         query = query
             .filter(user_id.eq(value))
-            .filter(update_time.is_null())
+            .filter(delete_time.is_null())
     } else {
-        query = query.filter(user_id.is_null())
+        query = query
+            .filter(user_id.is_null())
+            .filter(delete_time.is_null())
     }
     query.select(Product::as_select()).load(conn)
 }
+
 
 pub fn create_product_for_user(
     conn: &mut PgConnection,

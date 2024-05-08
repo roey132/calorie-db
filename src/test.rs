@@ -1,6 +1,7 @@
 #![allow(unused_imports)]
 use chrono::NaiveDate;
 use rand::{distributions::Alphanumeric, Rng};
+use uuid::Uuid;
 
 use crate::{establish_connection, product_measures::*, products::*, user_meals::*, users::*};
 
@@ -72,4 +73,19 @@ fn tests() {
         date,
     )
     .unwrap();
+}
+
+#[test]
+fn test_products_by_user() {
+    let conn = &mut establish_connection();
+    let products = get_products_by_user(
+        conn,
+        Some(
+            Uuid::parse_str("26b732bd-fbd0-4f88-ae40-11665a10796b")
+                .expect("this parse doesnt work"),
+        ),
+    )
+    .unwrap();
+    println!("this test prints");
+    println!("{}", products.len().to_string());
 }
