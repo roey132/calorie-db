@@ -41,7 +41,7 @@ struct ProductIdPath {
     id: i32,
 }
 
-#[get("/products/{id}")]
+#[get("/products/id/{id}")]
 async fn get_product(pool: web::Data<DbPool>, path: web::Path<ProductIdPath>) -> impl Responder {
     let product_id = path.id;
 
@@ -71,7 +71,7 @@ async fn get_product(pool: web::Data<DbPool>, path: web::Path<ProductIdPath>) ->
 struct UserIdPath {
     user_id: Uuid,
 }
-#[get("/users/{user_id}/products")]
+#[get("/users/uuid/{user_id}/products")]
 async fn get_products_for_user_id(
     pool: web::Data<DbPool>,
     path: web::Path<UserIdPath>,
@@ -83,6 +83,28 @@ async fn get_products_for_user_id(
     };
 
     let results = products::get_products_by_user(&mut conn, Some(user_id));
+    let products_map = match results {
+        Ok(products) => {
+            let mut map: HashMap<i32, models::Product> = HashMap::new();
+            for product in products {
+                map.insert(product.product_id, product);
+            }
+            map
+        }
+        Err(_) => return HttpResponse::InternalServerError().body("error"),
+    };
+
+    HttpResponse::Ok().json(products_map)
+}
+
+#[get("/products/system")]
+async fn get_all_non_user_products(pool: web::Data<DbPool>) -> impl Responder {
+    let mut conn = match pool.get() {
+        Ok(conn) => conn,
+        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
+    };
+
+    let results = products::get_products_by_user(&mut conn, None);
     let products_map = match results {
         Ok(products) => {
             let mut map: HashMap<i32, models::Product> = HashMap::new();
@@ -120,7 +142,8 @@ async fn main() -> std::io::Result<()> {
         App::new().app_data(web::Data::new(pool.clone())).service(
             web::scope("/api")
                 .service(get_product)
-                .service(get_products_for_user_id),
+                .service(get_products_for_user_id)
+                .service(get_all_non_user_products),
         )
     })
     .bind(("127.0.0.1", 8080))?
