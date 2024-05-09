@@ -7,6 +7,7 @@ use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
+use uuid;
 use uuid::Uuid;
 mod models;
 mod product_measures;
@@ -24,15 +25,6 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 
-async fn test_path() -> impl Responder {
-    HttpResponse::Ok().body("Test Path Is Working")
-}
-
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
-}
-
 async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
@@ -41,6 +33,46 @@ struct ProductIdPath {
     id: i32,
 }
 
+#[derive(Deserialize)]
+struct UserProductInfo {
+    user_id: String,
+    product_name: String,
+    calories_per_100g: f64,
+}
+#[post("/products/user_product/create")]
+async fn create_user_product(
+    pool: web::Data<DbPool>,
+    info: web::Json<UserProductInfo>,
+) -> impl Responder {
+    let mut conn = match pool.get() {
+        Ok(conn) => conn,
+        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
+    };
+
+    let user_id = match Uuid::parse_str(&info.user_id) {
+        Ok(result) => result,
+        Err(e) => {
+            return HttpResponse::InternalServerError().body(format!(
+                "Failed to format user id to UUID due to error: {e}"
+            ))
+        }
+    };
+
+    let calories_per_gram = info.calories_per_100g / 100.0;
+
+    let result = products::create_product_for_user(
+        &mut conn,
+        &info.product_name,
+        calories_per_gram,
+        &user_id,
+    );
+    match result {
+        Ok(_) => HttpResponse::Ok().body("Successfully created new product"),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Failed to create new product: {}", e))
+        }
+    }
+}
 #[get("/products/id/{id}")]
 async fn get_product(pool: web::Data<DbPool>, path: web::Path<ProductIdPath>) -> impl Responder {
     let product_id = path.id;
@@ -143,7 +175,8 @@ async fn main() -> std::io::Result<()> {
             web::scope("/api")
                 .service(get_product)
                 .service(get_products_for_user_id)
-                .service(get_all_non_user_products),
+                .service(get_all_non_user_products)
+                .service(create_user_product),
         )
     })
     .bind(("127.0.0.1", 8080))?
