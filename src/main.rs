@@ -34,6 +34,37 @@ struct ProductIdPath {
 }
 
 #[derive(Deserialize)]
+struct UserProductEdit {
+    user_id: String,
+    product_name: String,
+    product_id: i32,
+    calories_per_100g: f64,
+}
+#[post("/products/user_product/edit")]
+async fn edit_user_product(
+    pool: web::Data<DbPool>,
+    info: web::Json<UserProductEdit>,
+) -> impl Responder {
+    let mut conn = match pool.get() {
+        Ok(conn) => conn,
+        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
+    };
+
+    let calories_per_gram = info.calories_per_100g / 100.0;
+
+    match products::update_product_by_id(
+        &mut conn,
+        info.product_id,
+        &info.product_name,
+        calories_per_gram,
+    ) {
+        Ok(_) => HttpResponse::Ok().body("Successfully updated product"),
+        Err(e) => HttpResponse::InternalServerError()
+            .body(format!("Failed to edit product due to error: {e}")),
+    }
+}
+
+#[derive(Deserialize)]
 struct UserProductInfo {
     user_id: String,
     product_name: String,
@@ -103,7 +134,7 @@ async fn get_product(pool: web::Data<DbPool>, path: web::Path<ProductIdPath>) ->
 struct UserIdPath {
     user_id: Uuid,
 }
-#[get("/users/uuid/{user_id}/products")]
+#[get("/products/user/{user_id}")]
 async fn get_products_for_user_id(
     pool: web::Data<DbPool>,
     path: web::Path<UserIdPath>,
@@ -176,7 +207,8 @@ async fn main() -> std::io::Result<()> {
                 .service(get_product)
                 .service(get_products_for_user_id)
                 .service(get_all_non_user_products)
-                .service(create_user_product),
+                .service(create_user_product)
+                .service(edit_user_product),
         )
     })
     .bind(("127.0.0.1", 8080))?
