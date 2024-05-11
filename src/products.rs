@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use crate::models::*;
+use crate::users::get_user_uuid;
 use crate::*;
 use diesel::result::Error;
 use uuid::Uuid;
@@ -37,7 +38,6 @@ pub fn get_products_by_user(
     query.select(Product::as_select()).load(conn)
 }
 
-
 pub fn create_product_for_user(
     conn: &mut PgConnection,
     product_name: &str,
@@ -50,6 +50,24 @@ pub fn create_product_for_user(
         product_name: product_name,
         calories_per_gram: calories_per_gram,
         user_id: user_id,
+    };
+
+    diesel::insert_into(products::table)
+        .values(&new_product)
+        .execute(conn)
+}
+
+pub fn create_system_product(
+    conn: &mut PgConnection,
+    product_name: &str,
+    calories_per_gram: f64,
+) -> Result<usize, Error> {
+    use crate::schema::products;
+    let sys_uuid = get_user_uuid(conn, &"system").expect("failed to get system uuid");
+    let new_product = NewUserProduct {
+        product_name: product_name,
+        calories_per_gram: calories_per_gram,
+        user_id: &sys_uuid,
     };
 
     diesel::insert_into(products::table)
