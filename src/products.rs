@@ -25,17 +25,15 @@ pub fn get_products_by_user(
     id: Option<Uuid>,
 ) -> Result<Vec<Product>, Error> {
     use self::schema::products::dsl::*;
-    let mut query = products.into_boxed();
-    if let Some(value) = id {
-        query = query
-            .filter(user_id.eq(value))
-            .filter(delete_time.is_null())
-    } else {
-        query = query
-            .filter(user_id.is_null())
-            .filter(delete_time.is_null())
-    }
-    query.select(Product::as_select()).load(conn)
+
+    let final_id =
+        id.unwrap_or(get_user_uuid(conn, &"system").expect("Failed to load system uuid"));
+
+    products
+        .filter(user_id.eq(final_id))
+        .filter(delete_time.is_null())
+        .select(Product::as_select())
+        .load(conn)
 }
 
 pub fn create_product_for_user(
