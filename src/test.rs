@@ -1,9 +1,38 @@
 #![allow(unused_imports)]
 use chrono::NaiveDate;
+use diesel::RunQueryDsl;
 use rand::{distributions::Alphanumeric, Rng};
 use uuid::Uuid;
 
 use crate::{establish_connection, product_measures::*, products::*, user_meals::*, users::*};
+
+use crate::schema::sql_types::MealType;
+use crate::schema::users;
+#[derive(crate::Insertable)]
+#[diesel(table_name = users)]
+pub struct AdminUser<'a> {
+    pub user_id: Uuid,
+    pub username: &'a str,
+    pub password: &'a str,
+}
+
+#[test]
+fn create_sys_user() {
+    let system_uuid = Uuid::parse_str("169c6748-72aa-4c08-b6a8-b6c6ed491078").unwrap();
+    let system_username = "system";
+    let system_password = "calorie_db_system";
+
+    let admin = AdminUser {
+        user_id: system_uuid,
+        username: system_username,
+        password: system_password,
+    };
+    let conn = &mut establish_connection();
+
+    let _ = diesel::insert_into(users::table)
+        .values(admin)
+        .execute(conn);
+}
 
 #[test]
 fn tests() {
