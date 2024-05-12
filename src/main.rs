@@ -1,5 +1,7 @@
 #![allow(dead_code)]
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
+use actix_web::{
+    get, post, web, App, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder, Result,
+};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
@@ -9,6 +11,7 @@ use std::collections::HashMap;
 use std::env;
 use uuid;
 use uuid::Uuid;
+mod middleware;
 mod models;
 mod product_measures;
 mod products;
@@ -138,19 +141,28 @@ struct UserIdPath {
 async fn get_products_for_user_id(
     pool: web::Data<DbPool>,
     path: web::Path<UserIdPath>,
+    req: HttpRequest,
 ) -> impl Responder {
     let user_id = path.user_id;
     let mut conn = match pool.get() {
         Ok(conn) => conn,
         Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
     };
+    let extensions = req.extensions();
 
+    let test_context = extensions
+        .get::<middleware::TestContext>()
+        .unwrap_or_else(|| {
+            panic!("TestContext not found. Make sure middleware is configured correctly.");
+        });
+
+    let msg = &test_context.msg;
     let results = products::get_products_by_user(&mut conn, Some(user_id));
     let products_map = match results {
         Ok(products) => {
-            let mut map: HashMap<i32, models::Product> = HashMap::new();
+            let mut map: HashMap<String, models::Product> = HashMap::new();
             for product in products {
-                map.insert(product.product_id, product);
+                map.insert(format!("{}{}", msg, product.product_id,), product);
             }
             map
         }
@@ -204,6 +216,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new().app_data(web::Data::new(pool.clone())).service(
             web::scope("/api")
+                .wrap(middleware::ContextInjector)
                 .service(get_product)
                 .service(get_products_for_user_id)
                 .service(get_all_non_user_products)
