@@ -1,5 +1,6 @@
 use actix_web::HttpMessage;
 use std::future::{ready, Ready};
+use uuid::Uuid;
 
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
@@ -8,13 +9,13 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 
 #[derive(Clone)]
-pub struct TestContext {
-    pub msg: String,
+pub struct Ctx {
+    pub user_id: Uuid,
 }
 
-pub struct ContextInjector;
+pub struct Context;
 
-impl<S, B> Transform<S, ServiceRequest> for ContextInjector
+impl<S, B> Transform<S, ServiceRequest> for Context
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -48,18 +49,21 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        println!("Hi from start. You requested: {}", req.path());
+        let path = req.path().to_string();
 
-        let context = TestContext {
-            msg: "Middleware Works!".to_string(),
-        };
+        println!("Request: {}", req.path());
+        let headers = req.headers();
+        let id = headers.get("user_id").unwrap().to_str().unwrap();
+        let user_id = Uuid::parse_str(id).unwrap();
+        let context = Ctx { user_id: user_id };
+
         req.extensions_mut().insert(context);
 
         let fut = self.service.call(req);
         Box::pin(async move {
             let res = fut.await?;
 
-            println!("Hi from response");
+            println!("Request: {} finished", path);
             Ok(res)
         })
     }

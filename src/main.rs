@@ -133,36 +133,24 @@ async fn get_product(pool: web::Data<DbPool>, path: web::Path<ProductIdPath>) ->
         }
     }
 }
-#[derive(Debug, serde::Deserialize)]
-struct UserIdPath {
-    user_id: Uuid,
-}
-#[get("/products/user/{user_id}")]
-async fn get_products_for_user_id(
-    pool: web::Data<DbPool>,
-    path: web::Path<UserIdPath>,
-    req: HttpRequest,
-) -> impl Responder {
-    let user_id = path.user_id;
+
+#[get("/products/user")]
+async fn get_products_for_user_id(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
     let mut conn = match pool.get() {
         Ok(conn) => conn,
         Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
     };
     let extensions = req.extensions();
 
-    let test_context = extensions
-        .get::<middleware::TestContext>()
-        .unwrap_or_else(|| {
-            panic!("TestContext not found. Make sure middleware is configured correctly.");
-        });
+    let test_context = extensions.get::<middleware::Ctx>().expect("asd");
 
-    let msg = &test_context.msg;
+    let user_id = test_context.user_id;
     let results = products::get_products_by_user(&mut conn, Some(user_id));
     let products_map = match results {
         Ok(products) => {
-            let mut map: HashMap<String, models::Product> = HashMap::new();
+            let mut map: HashMap<i32, models::Product> = HashMap::new();
             for product in products {
-                map.insert(format!("{}{}", msg, product.product_id,), product);
+                map.insert(product.product_id, product);
             }
             map
         }
@@ -216,7 +204,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new().app_data(web::Data::new(pool.clone())).service(
             web::scope("/api")
-                .wrap(middleware::ContextInjector)
+                .wrap(middleware::Context)
                 .service(get_product)
                 .service(get_products_for_user_id)
                 .service(get_all_non_user_products)
