@@ -1,12 +1,11 @@
 use actix_web::HttpMessage;
-use std::future::{ready, Ready};
-use uuid::Uuid;
-
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
 };
 use futures_util::future::LocalBoxFuture;
+use std::future::{ready, Ready};
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct Ctx {
@@ -53,18 +52,26 @@ where
 
         println!("Request: {}", req.path());
         let headers = req.headers();
-        let id = headers.get("user_id").unwrap().to_str().unwrap();
-        let user_id = Uuid::parse_str(id).unwrap();
-        let context = Ctx { user_id: user_id };
+        if let Some(id) = headers.get("user_id") {
+            let id = id.to_str().unwrap();
+            let user_id = Uuid::parse_str(id).unwrap();
+            let context = Ctx { user_id: user_id };
 
-        req.extensions_mut().insert(context);
+            req.extensions_mut().insert(context);
 
-        let fut = self.service.call(req);
+            let fut = self.service.call(req);
+
+            return Box::pin(async move {
+                let res = fut.await?;
+
+                println!("Response: {} finished successfully!", path);
+                Ok(res)
+            });
+        }
+        let response: Error = actix_web::error::ErrorUnauthorized("test");
         Box::pin(async move {
-            let res = fut.await?;
-
-            println!("Request: {} finished", path);
-            Ok(res)
+            println!("Response: {} unauthorized - user_id not found", path);
+            Err(response)
         })
     }
 }
