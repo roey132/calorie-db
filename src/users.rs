@@ -35,3 +35,17 @@ pub fn get_user_uuid(conn: &mut PgConnection, user_name: &str) -> Result<Uuid, &
         Err("Failed to find user id")
     }
 }
+
+pub fn get_user_by_id(conn: &mut PgConnection, user_id: Uuid) -> Result<User, Error> {
+    let mut results: Vec<User> = users::table
+        .filter(users::user_id.eq(user_id))
+        .limit(1)
+        .select(schema::users::all_columns)
+        .load(conn)?;
+
+    if results.len() == 1 {
+        Ok(results.remove(0))
+    } else {
+        Err(diesel::result::Error::NotFound)
+    }
+}
