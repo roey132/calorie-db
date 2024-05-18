@@ -96,6 +96,29 @@ async fn delete_product_by_id(
 }
 
 #[derive(Deserialize)]
+struct NewMeasure {
+    product_id: i32,
+    measure_name: String,
+    measure_calories: f64,
+}
+#[post("measures/measure/create")]
+async fn create_new_measure(
+    pool: web::Data<DbPool>,
+    info: web::Json<NewMeasure>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::create_product_measure(
+        &mut conn,
+        info.product_id,
+        info.measure_name.as_str(),
+        info.measure_calories,
+        false,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully created measure"))
+}
+
+#[derive(Deserialize)]
 struct UserProductInfo {
     product_name: String,
     calories_per_100g: f64,
