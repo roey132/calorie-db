@@ -139,6 +139,16 @@ async fn edit_measure(
     )?;
     Ok(HttpResponse::Ok().body("Successfully edited measure"))
 }
+#[get("measures/measure/delete/{id}")]
+async fn delete_measure(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::delete_product_measure_by_measure_id(&mut conn, info.0)?;
+    Ok(HttpResponse::Ok().body("Successfully deleted measure"))
+}
 #[derive(Deserialize)]
 struct UserProductInfo {
     product_name: String,
