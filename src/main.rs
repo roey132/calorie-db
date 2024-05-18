@@ -82,6 +82,19 @@ async fn edit_user_product(
     Ok(HttpResponse::Ok().body("Successfully updated product"))
 }
 
+#[get("products/product/delete/{id}")]
+async fn delete_product_by_id(
+    pool: web::Data<DbPool>,
+    info: web::Data<(i32,)>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+
+    products::delete_product_by_id(&mut conn, info.0)?;
+
+    Ok(HttpResponse::Ok().body(format!("Successfully deleted product {}", info.0)))
+}
+
 #[derive(Deserialize)]
 struct UserProductInfo {
     product_name: String,
