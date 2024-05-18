@@ -67,24 +67,19 @@ async fn edit_user_product(
     pool: web::Data<DbPool>,
     info: web::Json<UserProductEdit>,
     _: models::User,
-) -> impl Responder {
-    let mut conn = match pool.get() {
-        Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
-    };
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
 
     let calories_per_gram = info.calories_per_100g / 100.0;
 
-    match products::update_product_by_id(
+    products::update_product_by_id(
         &mut conn,
         info.product_id,
         &info.product_name,
         calories_per_gram,
-    ) {
-        Ok(_) => HttpResponse::Ok().body("Successfully updated product"),
-        Err(e) => HttpResponse::InternalServerError()
-            .body(format!("Failed to edit product due to error: {e}")),
-    }
+    )?;
+
+    Ok(HttpResponse::Ok().body("Successfully updated product"))
 }
 
 #[derive(Deserialize)]
@@ -97,26 +92,19 @@ async fn create_user_product(
     pool: web::Data<DbPool>,
     info: web::Json<UserProductInfo>,
     user: models::User,
-) -> impl Responder {
-    let mut conn = match pool.get() {
-        Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
-    };
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
 
     let calories_per_gram = info.calories_per_100g / 100.0;
 
-    let result = products::create_product_for_user(
+    products::create_product_for_user(
         &mut conn,
         &info.product_name,
         calories_per_gram,
         &user.user_id,
-    );
-    match result {
-        Ok(_) => HttpResponse::Ok().body("Successfully created new product"),
-        Err(e) => {
-            HttpResponse::InternalServerError().body(format!("Failed to create new product: {}", e))
-        }
-    }
+    )?;
+
+    Ok(HttpResponse::Ok().body("Successfully created new product"))
 }
 
 #[get("/products/product/get/{id}")]
@@ -137,48 +125,34 @@ async fn get_product(
 }
 
 #[get("/products/user")]
-async fn get_products_for_user_id(pool: web::Data<DbPool>, user: models::User) -> impl Responder {
-    let mut conn = match pool.get() {
-        Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
-    };
+async fn get_products_for_user_id(
+    pool: web::Data<DbPool>,
+    user: models::User,
+) -> Result<web::Json<HashMap<i32, models::Product>>, ServerError> {
+    let mut conn = pool.get()?;
 
     let user_id = user.user_id;
-    let results = products::get_products_by_user(&mut conn, Some(user_id));
-    let products_map = match results {
-        Ok(products) => {
-            let mut map: HashMap<i32, models::Product> = HashMap::new();
-            for product in products {
-                map.insert(product.product_id, product);
-            }
-            map
-        }
-        Err(_) => return HttpResponse::InternalServerError().body("error"),
-    };
-
-    HttpResponse::Ok().json(products_map)
+    let results = products::get_products_by_user(&mut conn, Some(user_id))?;
+    let mut products_map: HashMap<i32, models::Product> = HashMap::new();
+    for product in results {
+        products_map.insert(product.product_id, product);
+    }
+    Ok(web::Json(products_map))
 }
 
 #[get("/products/system")]
-async fn get_all_non_user_products(pool: web::Data<DbPool>, _: models::User) -> impl Responder {
-    let mut conn = match pool.get() {
-        Ok(conn) => conn,
-        Err(_) => return HttpResponse::InternalServerError().body("Database connection failed."),
-    };
+async fn get_all_non_user_products(
+    pool: web::Data<DbPool>,
+    _: models::User,
+) -> Result<web::Json<HashMap<i32, models::Product>>, ServerError> {
+    let mut conn = pool.get()?;
 
-    let results = products::get_products_by_user(&mut conn, None);
-    let products_map = match results {
-        Ok(products) => {
-            let mut map: HashMap<i32, models::Product> = HashMap::new();
-            for product in products {
-                map.insert(product.product_id, product);
-            }
-            map
-        }
-        Err(_) => return HttpResponse::InternalServerError().body("error"),
-    };
-
-    HttpResponse::Ok().json(products_map)
+    let results = products::get_products_by_user(&mut conn, None)?;
+    let mut products_map: HashMap<i32, models::Product> = HashMap::new();
+    for product in results {
+        products_map.insert(product.product_id, product);
+    }
+    Ok(web::Json(products_map))
 }
 
 pub fn establish_connection() -> PgConnection {
