@@ -119,6 +119,27 @@ async fn create_new_measure(
 }
 
 #[derive(Deserialize)]
+struct EditedMeasure {
+    measure_id: i32,
+    measure_name: String,
+    measure_calories: f64,
+}
+#[post("measures/measure/edit")]
+async fn edit_measure(
+    pool: web::Data<DbPool>,
+    info: web::Json<EditedMeasure>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::update_product_measure_by_measure_id(
+        &mut conn,
+        info.measure_id,
+        info.measure_name.as_str(),
+        info.measure_calories,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully edited measure"))
+}
+#[derive(Deserialize)]
 struct UserProductInfo {
     product_name: String,
     calories_per_100g: f64,
