@@ -96,60 +96,6 @@ async fn delete_product_by_id(
 }
 
 #[derive(Deserialize)]
-struct NewMeasure {
-    product_id: i32,
-    measure_name: String,
-    measure_calories: f64,
-}
-#[post("measures/measure/create")]
-async fn create_new_measure(
-    pool: web::Data<DbPool>,
-    info: web::Json<NewMeasure>,
-    _: models::User,
-) -> Result<HttpResponse, ServerError> {
-    let mut conn = pool.get()?;
-    product_measures::create_product_measure(
-        &mut conn,
-        info.product_id,
-        info.measure_name.as_str(),
-        info.measure_calories,
-        false,
-    )?;
-    Ok(HttpResponse::Ok().body("Successfully created measure"))
-}
-
-#[derive(Deserialize)]
-struct EditedMeasure {
-    measure_id: i32,
-    measure_name: String,
-    measure_calories: f64,
-}
-#[post("measures/measure/edit")]
-async fn edit_measure(
-    pool: web::Data<DbPool>,
-    info: web::Json<EditedMeasure>,
-    _: models::User,
-) -> Result<HttpResponse, ServerError> {
-    let mut conn = pool.get()?;
-    product_measures::update_product_measure_by_measure_id(
-        &mut conn,
-        info.measure_id,
-        info.measure_name.as_str(),
-        info.measure_calories,
-    )?;
-    Ok(HttpResponse::Ok().body("Successfully edited measure"))
-}
-#[get("measures/measure/delete/{id}")]
-async fn delete_measure(
-    pool: web::Data<DbPool>,
-    info: web::Path<(i32,)>,
-    _: models::User,
-) -> Result<HttpResponse, ServerError> {
-    let mut conn = pool.get()?;
-    product_measures::delete_product_measure_by_measure_id(&mut conn, info.0)?;
-    Ok(HttpResponse::Ok().body("Successfully deleted measure"))
-}
-#[derive(Deserialize)]
 struct UserProductInfo {
     product_name: String,
     calories_per_100g: f64,
@@ -220,6 +166,77 @@ async fn get_all_non_user_products(
         products_map.insert(product.product_id, product);
     }
     Ok(web::Json(products_map))
+}
+
+#[get("/measures/product/{id}")]
+async fn get_measures_for_product(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<web::Json<HashMap<i32, models::ProductMeasure>>, ServerError> {
+    let mut conn = pool.get()?;
+    let product_id = info.0;
+    let results = product_measures::get_product_measures_by_product(&mut conn, product_id)?;
+    let mut measures: HashMap<i32, models::ProductMeasure> = HashMap::new();
+    for result in results {
+        measures.insert(result.measure_id, result);
+    }
+    Ok(web::Json(measures))
+}
+
+#[derive(Deserialize)]
+struct NewMeasure {
+    product_id: i32,
+    measure_name: String,
+    measure_calories: f64,
+}
+#[post("measures/measure/create")]
+async fn create_new_measure(
+    pool: web::Data<DbPool>,
+    info: web::Json<NewMeasure>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::create_product_measure(
+        &mut conn,
+        info.product_id,
+        info.measure_name.as_str(),
+        info.measure_calories,
+        false,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully created measure"))
+}
+
+#[derive(Deserialize)]
+struct EditedMeasure {
+    measure_id: i32,
+    measure_name: String,
+    measure_calories: f64,
+}
+#[post("measures/measure/edit")]
+async fn edit_measure(
+    pool: web::Data<DbPool>,
+    info: web::Json<EditedMeasure>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::update_product_measure_by_measure_id(
+        &mut conn,
+        info.measure_id,
+        info.measure_name.as_str(),
+        info.measure_calories,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully edited measure"))
+}
+#[get("measures/measure/delete/{id}")]
+async fn delete_measure(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    product_measures::delete_product_measure_by_measure_id(&mut conn, info.0)?;
+    Ok(HttpResponse::Ok().body("Successfully deleted measure"))
 }
 
 pub fn establish_connection() -> PgConnection {

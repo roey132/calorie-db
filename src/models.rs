@@ -34,7 +34,7 @@ pub struct NewUserProduct<'a> {
     pub user_id: &'a Uuid,
 }
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Deserialize, Serialize)]
 #[diesel(table_name = crate::schema::product_measures)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ProductMeasure {
