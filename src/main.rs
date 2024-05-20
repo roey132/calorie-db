@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
-use actix_web::web::service;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
 use chrono::NaiveDate;
 use diesel::pg::PgConnection;
@@ -341,6 +340,54 @@ async fn delete_user_meal(
     Ok(HttpResponse::Ok().body("Successfully deleted meal"))
 }
 
+#[derive(Deserialize)]
+struct EditedProductMeal {
+    meal_id: i32,
+    product_grams: i32,
+}
+#[post("meals/meal/edit/product")]
+async fn edit_product_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<EditedProductMeal>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::update_user_meal_product_by_meal_id(&mut conn, info.meal_id, info.product_grams)?;
+    Ok(HttpResponse::Ok().body("Successfully edited meal"))
+}
+
+#[derive(Deserialize)]
+struct EditedCaloriesMeal {
+    meal_id: i32,
+    calories: f64,
+}
+#[post("meals/meal/edit/calories")]
+async fn edit_calories_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<EditedCaloriesMeal>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::update_user_meal_calories_by_meal_id(&mut conn, info.meal_id, info.calories)?;
+    Ok(HttpResponse::Ok().body("Successfully edited meal"))
+}
+
+#[derive(Deserialize)]
+struct EditedMeasureMeal {
+    meal_id: i32,
+    measure_count: f64,
+}
+#[post("meals/meal/edit/measure")]
+async fn edit_measure_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<EditedMeasureMeal>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::update_user_meal_measure_by_meal_id(&mut conn, info.meal_id, info.measure_count)?;
+    Ok(HttpResponse::Ok().body("Successfully edited meal"))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -368,7 +415,10 @@ async fn main() -> std::io::Result<()> {
                 .service(create_calories_meal)
                 .service(create_measure_meal)
                 .service(create_product_meal)
-                .service(delete_user_meal),
+                .service(delete_user_meal)
+                .service(edit_calories_meal)
+                .service(edit_product_meal)
+                .service(edit_measure_meal),
         )
     })
     .bind(("127.0.0.1", 8080))?
