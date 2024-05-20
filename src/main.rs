@@ -306,7 +306,6 @@ async fn create_product_meal(
 
 #[derive(Deserialize)]
 struct NewMeasureMeal {
-    product_id: i32,
     measure_id: i32,
     measure_count: f64,
     meal_date: NaiveDate,
@@ -323,7 +322,6 @@ async fn create_measure_meal(
     user_meals::create_user_meal_measure(
         &mut conn,
         &user.user_id,
-        info.product_id,
         info.measure_id,
         info.measure_count,
         info.meal_name.as_deref(),

@@ -75,7 +75,6 @@ fn tests() {
     create_user_meal_measure(
         conn,
         &user_id,
-        product_id,
         1,
         2.5,
         Some("test_name"),

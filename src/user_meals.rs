@@ -33,7 +33,6 @@ pub fn create_user_meal_product(
 pub fn create_user_meal_measure(
     conn: &mut PgConnection,
     user_id: &Uuid,
-    product_id: i32,
     measure_id: i32,
     measure_count: f64,
     meal_name: Option<&str>,
@@ -45,7 +44,6 @@ pub fn create_user_meal_measure(
     let new_meal = NewUserMealMeasure {
         user_id,
         meal_type,
-        product_id,
         measure_id,
         measure_count,
         meal_name,

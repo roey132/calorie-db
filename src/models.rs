@@ -7,7 +7,6 @@ use diesel::expression::AsExpression;
 use diesel::pg::{Pg, PgValue};
 use diesel::prelude::*;
 use diesel::serialize::{IsNull, Output, ToSql};
-use diesel::sql_types::Float;
 use serde::Deserialize;
 use serde::Serialize;
 use std::io::Write;
@@ -144,7 +143,6 @@ pub struct NewUserMealProduct<'a> {
 pub struct NewUserMealMeasure<'a> {
     pub user_id: &'a Uuid,
     pub meal_type: MealEnum,
-    pub product_id: i32,
     pub measure_id: i32,
     pub measure_count: f64,
     pub meal_name: Option<&'a str>,
