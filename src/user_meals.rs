@@ -9,8 +9,8 @@ pub fn create_user_meal_product(
     user_id: &Uuid,
     product_id: i32,
     product_grams: i32,
-    meal_name: Option<String>,
-    meal_note: Option<String>,
+    meal_name: Option<&str>,
+    meal_note: Option<&str>,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {
     let meal_type = MealEnum::Product;
@@ -36,8 +36,8 @@ pub fn create_user_meal_measure(
     product_id: i32,
     measure_id: i32,
     measure_count: f64,
-    meal_name: Option<String>,
-    meal_note: Option<String>,
+    meal_name: Option<&str>,
+    meal_note: Option<&str>,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {
     let meal_type = MealEnum::Measure;
@@ -60,8 +60,8 @@ pub fn create_user_meal_measure(
 pub fn create_user_meal_calories(
     conn: &mut PgConnection,
     user_id: &Uuid,
-    meal_name: Option<String>,
-    meal_note: Option<String>,
+    meal_name: Option<&str>,
+    meal_note: Option<&str>,
     calories: f64,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {

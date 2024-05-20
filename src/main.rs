@@ -1,7 +1,9 @@
 #![allow(dead_code)]
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
+use actix_web::web::service;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
+use chrono::NaiveDate;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -247,6 +249,98 @@ pub fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+#[derive(Deserialize)]
+struct NewCaloriesMeal {
+    calories: f64,
+    meal_date: NaiveDate,
+    meal_name: Option<String>,
+    meal_note: Option<String>,
+}
+#[post("meals/meal/create/calories")]
+async fn create_calories_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<NewCaloriesMeal>,
+    user: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::create_user_meal_calories(
+        &mut conn,
+        &user.user_id,
+        info.meal_name.as_deref(),
+        info.meal_note.as_deref(),
+        info.calories,
+        info.meal_date,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully created calories meal"))
+}
+
+#[derive(Deserialize)]
+struct NewProductMeal {
+    product_id: i32,
+    product_grams: i32,
+    meal_date: NaiveDate,
+    meal_name: Option<String>,
+    meal_note: Option<String>,
+}
+#[post("meals/meal/create/product")]
+async fn create_product_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<NewProductMeal>,
+    user: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::create_user_meal_product(
+        &mut conn,
+        &user.user_id,
+        info.product_id,
+        info.product_grams,
+        info.meal_name.as_deref(),
+        info.meal_note.as_deref(),
+        info.meal_date,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully created product meal"))
+}
+
+#[derive(Deserialize)]
+struct NewMeasureMeal {
+    product_id: i32,
+    measure_id: i32,
+    measure_count: f64,
+    meal_date: NaiveDate,
+    meal_name: Option<String>,
+    meal_note: Option<String>,
+}
+#[post("meals/meal/create/measure")]
+async fn create_measure_meal(
+    pool: web::Data<DbPool>,
+    info: web::Json<NewMeasureMeal>,
+    user: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::create_user_meal_measure(
+        &mut conn,
+        &user.user_id,
+        info.product_id,
+        info.measure_id,
+        info.measure_count,
+        info.meal_name.as_deref(),
+        info.meal_note.as_deref(),
+        info.meal_date,
+    )?;
+    Ok(HttpResponse::Ok().body("Successfully created measure meal"))
+}
+
+#[get("meals/meal/delete/{id}")]
+async fn delete_user_meal(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    user_meals::delete_user_meal_by_id(&mut conn, info.0)?;
+    Ok(HttpResponse::Ok().body("Successfully deleted meal"))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -264,8 +358,17 @@ async fn main() -> std::io::Result<()> {
                 .service(get_product)
                 .service(get_products_for_user_id)
                 .service(get_all_non_user_products)
+                .service(delete_product_by_id)
                 .service(create_user_product)
-                .service(edit_user_product),
+                .service(get_measures_for_product)
+                .service(edit_user_product)
+                .service(delete_measure)
+                .service(edit_measure)
+                .service(create_new_measure)
+                .service(create_calories_meal)
+                .service(create_measure_meal)
+                .service(create_product_meal)
+                .service(delete_user_meal),
         )
     })
     .bind(("127.0.0.1", 8080))?

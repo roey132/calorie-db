@@ -78,8 +78,8 @@ fn tests() {
         product_id,
         1,
         2.5,
-        Some("test_name".to_string()),
-        Some("test_note".to_string()),
+        Some("test_name"),
+        Some("test_note"),
         date,
     )
     .unwrap();
@@ -88,7 +88,7 @@ fn tests() {
         &user_id,
         product_id,
         100,
-        Some("Test Meal Name".to_string()),
+        Some("Test Meal Name"),
         None,
         date,
     )
@@ -96,7 +96,7 @@ fn tests() {
     create_user_meal_calories(
         conn,
         &user_id,
-        Some("Test Calories Meal Name".to_string()),
+        Some("Test Calories Meal Name"),
         None,
         150.0,
         date,
