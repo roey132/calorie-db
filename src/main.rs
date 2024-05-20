@@ -358,7 +358,7 @@ async fn edit_product_meal(
     let mut conn = pool.get()?;
 
     let meal = user_meals::get_user_meal_by_id(&mut conn, info.meal_id)?;
-    if meal.meal_type != MealEnum::Calories {
+    if meal.meal_type != MealEnum::Product {
         return Err(ServerError::Unauthorized);
     }
 
@@ -412,6 +412,27 @@ async fn edit_measure_meal(
     Ok(HttpResponse::Ok().body("Successfully edited meal"))
 }
 
+#[derive(Deserialize)]
+struct DateRange {
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
+}
+#[post("meals/total_calories")]
+async fn get_total_calories_for_user(
+    pool: web::Data<DbPool>,
+    info: web::Json<DateRange>,
+    user: models::User,
+) -> Result<web::Json<HashMap<NaiveDate, f64>>, ServerError> {
+    let mut conn = pool.get()?;
+    let results = user_meals_calculated::get_user_meals_date_range_calories(
+        &mut conn,
+        user.user_id,
+        info.start_date,
+        info.end_date,
+    )?;
+    Ok(web::Json(results))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -442,7 +463,8 @@ async fn main() -> std::io::Result<()> {
                 .service(delete_user_meal)
                 .service(edit_calories_meal)
                 .service(edit_product_meal)
-                .service(edit_measure_meal),
+                .service(edit_measure_meal)
+                .service(get_total_calories_for_user),
         )
     })
     .bind(("127.0.0.1", 8080))?

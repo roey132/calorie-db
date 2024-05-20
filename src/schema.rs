@@ -64,7 +64,13 @@ diesel::table! {
 
 diesel::joinable!(product_measures -> products (product_id));
 diesel::joinable!(products -> users (user_id));
+diesel::joinable!(user_meals -> product_measures (measure_id));
 diesel::joinable!(user_meals -> products (product_id));
 diesel::joinable!(user_meals -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(product_measures, products, user_meals, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    product_measures,
+    products,
+    user_meals,
+    users,
+);

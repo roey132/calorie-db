@@ -7,6 +7,7 @@ use diesel::expression::AsExpression;
 use diesel::pg::{Pg, PgValue};
 use diesel::prelude::*;
 use diesel::serialize::{IsNull, Output, ToSql};
+use diesel::sql_types::Float;
 use serde::Deserialize;
 use serde::Serialize;
 use std::io::Write;
@@ -164,7 +165,7 @@ pub struct NewUserMealCalories<'a> {
 
 #[derive(Queryable)]
 #[diesel(table_name = crate::user_meals_calculated::user_meals)]
-pub struct UserMealsCalculated {
+pub struct UserMealCalculated {
     pub meal_id: i32,
     pub user_id: Uuid,
     pub meal_type: MealEnum,
@@ -173,4 +174,5 @@ pub struct UserMealsCalculated {
     pub measure_name: Option<String>,
     pub measure_count: Option<f64>,
     pub meal_date: NaiveDate,
+    pub calc_calories: f64,
 }
