@@ -102,7 +102,7 @@ CHECK (
   (meal_type = 'Measure' AND
    measure_id IS NOT NULL AND
    measure_count IS NOT NULL AND
-   product_id IS NOT NULL AND
+   product_id IS NULL AND
    product_grams IS NULL AND
    calories IS NULL)
 );
