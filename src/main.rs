@@ -7,6 +7,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use dotenv::dotenv;
+use models::MealEnum;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::env;
@@ -33,6 +34,8 @@ pub enum ServerError {
     ParseError(#[from] uuid::Error),
     #[error("User Unauthorized")]
     Unauthorized,
+    #[error("{0}")]
+    CustomError(String),
 }
 
 impl actix_web::error::ResponseError for ServerError {
@@ -48,6 +51,7 @@ impl actix_web::error::ResponseError for ServerError {
             ServerError::ParseError(_) => StatusCode::BAD_REQUEST,
             ServerError::Unauthorized => StatusCode::UNAUTHORIZED,
             ServerError::ConnectionError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ServerError::CustomError(_) => StatusCode::BAD_REQUEST,
         }
     }
 }
@@ -352,6 +356,12 @@ async fn edit_product_meal(
     _: models::User,
 ) -> Result<HttpResponse, ServerError> {
     let mut conn = pool.get()?;
+
+    let meal = user_meals::get_user_meal_by_id(&mut conn, info.meal_id)?;
+    if meal.meal_type != MealEnum::Calories {
+        return Err(ServerError::Unauthorized);
+    }
+
     user_meals::update_user_meal_product_by_meal_id(&mut conn, info.meal_id, info.product_grams)?;
     Ok(HttpResponse::Ok().body("Successfully edited meal"))
 }
@@ -368,6 +378,12 @@ async fn edit_calories_meal(
     _: models::User,
 ) -> Result<HttpResponse, ServerError> {
     let mut conn = pool.get()?;
+
+    let meal = user_meals::get_user_meal_by_id(&mut conn, info.meal_id)?;
+    if meal.meal_type != MealEnum::Calories {
+        return Err(ServerError::Unauthorized);
+    }
+
     user_meals::update_user_meal_calories_by_meal_id(&mut conn, info.meal_id, info.calories)?;
     Ok(HttpResponse::Ok().body("Successfully edited meal"))
 }
@@ -384,6 +400,14 @@ async fn edit_measure_meal(
     _: models::User,
 ) -> Result<HttpResponse, ServerError> {
     let mut conn = pool.get()?;
+
+    let meal = user_meals::get_user_meal_by_id(&mut conn, info.meal_id)?;
+    if meal.meal_type != MealEnum::Measure {
+        return Err(ServerError::CustomError(
+            "Meal type is not Measure".to_string(),
+        ));
+    }
+
     user_meals::update_user_meal_measure_by_meal_id(&mut conn, info.meal_id, info.measure_count)?;
     Ok(HttpResponse::Ok().body("Successfully edited meal"))
 }
