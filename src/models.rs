@@ -78,7 +78,7 @@ pub struct NewUser<'a> {
     pub password: &'a str,
 }
 
-#[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq)]
+#[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize)]
 #[diesel(sql_type = crate::schema::sql_types::MealType)]
 pub enum MealEnum {
     Calories,
@@ -161,7 +161,7 @@ pub struct NewUserMealCalories<'a> {
     pub meal_date: NaiveDate,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Deserialize)]
 #[diesel(table_name = crate::user_meals_calculated::user_meals)]
 pub struct UserMealCalculated {
     pub meal_id: i32,

@@ -7,7 +7,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use dotenv::dotenv;
-use models::MealEnum;
+use models::{MealEnum, UserMealCalculated};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::env;
@@ -431,6 +431,21 @@ async fn get_total_calories_for_user(
     Ok(web::Json(results))
 }
 
+#[get["meals/date/{date}"]]
+async fn get_user_meals_for_date(
+    pool: web::Data<DbPool>,
+    info: web::Path<(NaiveDate,)>,
+    user: models::User,
+) -> Result<web::Json<HashMap<i32, UserMealCalculated>>, ServerError> {
+    let mut conn = pool.get()?;
+    let results = user_meals_calculated::get_user_meals_for_date(&mut conn, user.user_id, info.0)?;
+    let mut meals = HashMap::new();
+    for meal in results {
+        meals.insert(meal.meal_id, meal);
+    }
+    Ok(web::Json(meals))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -462,7 +477,8 @@ async fn main() -> std::io::Result<()> {
                 .service(edit_calories_meal)
                 .service(edit_product_meal)
                 .service(edit_measure_meal)
-                .service(get_total_calories_for_user),
+                .service(get_total_calories_for_user)
+                .service(get_user_meals_for_date),
         )
     })
     .bind(("127.0.0.1", 8080))?
