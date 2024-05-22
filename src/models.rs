@@ -73,9 +73,9 @@ use crate::schema::sql_types::MealType;
 use crate::schema::users;
 #[derive(Insertable)]
 #[diesel(table_name = users)]
-pub struct NewUser<'a> {
-    pub username: &'a str,
-    pub password: &'a str,
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize)]

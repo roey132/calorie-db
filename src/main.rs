@@ -158,6 +158,34 @@ async fn get_products_for_user_id(
     Ok(web::Json(products_map))
 }
 
+#[derive(Deserialize)]
+struct UserData {
+    username: String,
+    password: String,
+}
+#[post("/users/create")]
+async fn create_new_user(
+    pool: web::Data<DbPool>,
+    info: web::Json<UserData>,
+) -> Result<HttpResponse, ServerError> {
+    let mut conn = pool.get()?;
+    let hashed_pass = users::hash_password(info.password.clone())
+        .map_err(|_| ServerError::CustomError("Failed to hash password".to_string()))?;
+    users::create_user(&mut conn, info.username.clone(), hashed_pass)?;
+    Ok(HttpResponse::Ok().body("Successfully created user"))
+}
+#[post("/users/login")]
+async fn user_login(
+    pool: web::Data<DbPool>,
+    info: web::Json<UserData>,
+) -> Result<web::Json<HashMap<String, uuid::Uuid>>, ServerError> {
+    let mut conn = pool.get()?;
+    let user_id = users::check_user_password(&mut conn, info.username.clone(), &info.password)?;
+    let mut uuid = HashMap::new();
+    uuid.insert("UUID".to_string(), user_id);
+    Ok(web::Json(uuid))
+}
+
 #[get("/products/system")]
 async fn get_all_non_user_products(
     pool: web::Data<DbPool>,
@@ -478,7 +506,9 @@ async fn main() -> std::io::Result<()> {
                 .service(edit_product_meal)
                 .service(edit_measure_meal)
                 .service(get_total_calories_for_user)
-                .service(get_user_meals_for_date),
+                .service(get_user_meals_for_date)
+                .service(create_new_user)
+                .service(user_login),
         )
     })
     .bind(("127.0.0.1", 8080))?

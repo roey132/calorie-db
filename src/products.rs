@@ -26,8 +26,11 @@ pub fn get_products_by_user(
 ) -> Result<Vec<Product>, Error> {
     use self::schema::products::dsl::*;
 
-    let final_id =
-        id.unwrap_or(get_user_uuid(conn, &"system").expect("Failed to load system uuid"));
+    let final_id = id.unwrap_or(
+        get_user_uuid(conn, &"system")
+            .expect("Failed to load system uuid")
+            .user_id,
+    );
 
     products
         .filter(user_id.eq(final_id))
@@ -61,7 +64,9 @@ pub fn create_system_product(
     calories_per_gram: f64,
 ) -> Result<usize, Error> {
     use crate::schema::products;
-    let sys_uuid = get_user_uuid(conn, &"system").expect("failed to get system uuid");
+    let sys_uuid = get_user_uuid(conn, &"system")
+        .expect("failed to get system uuid")
+        .user_id;
     let new_product = NewUserProduct {
         product_name: product_name,
         calories_per_gram: calories_per_gram,
