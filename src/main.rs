@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use actix_cors::Cors;
 use actix_web::http::header::ContentType;
 use actix_web::http::StatusCode;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
@@ -488,6 +489,12 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new().app_data(web::Data::new(pool.clone())).service(
             web::scope("/api")
+                .wrap(
+                    Cors::default()
+                        .allow_any_origin()
+                        .allow_any_method()
+                        .allow_any_header(),
+                )
                 .service(get_product)
                 .service(get_products_for_user_id)
                 .service(get_all_non_user_products)
