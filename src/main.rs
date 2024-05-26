@@ -9,7 +9,7 @@ use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use dotenv::dotenv;
 use models::{MealEnum, UserMealCalculated};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
 use uuid;
@@ -475,6 +475,20 @@ async fn get_user_meals_for_date(
     Ok(web::Json(meals))
 }
 
+#[derive(Deserialize, Serialize)]
+struct profile {
+    user_id: String,
+    username: String,
+}
+#[get("users/profile")]
+async fn get_user_profile(user: models::User) -> Result<web::Json<profile>, ServerError> {
+    let user_profile = profile {
+        user_id: user.user_id.to_string(),
+        username: user.username,
+    };
+    Ok(web::Json(user_profile))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -515,7 +529,8 @@ async fn main() -> std::io::Result<()> {
                 .service(get_total_calories_for_user)
                 .service(get_user_meals_for_date)
                 .service(create_new_user)
-                .service(user_login),
+                .service(user_login)
+                .service(get_user_profile),
         )
     })
     .bind(("127.0.0.1", 8080))?
