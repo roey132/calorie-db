@@ -476,13 +476,13 @@ async fn get_user_meals_for_date(
 }
 
 #[derive(Deserialize, Serialize)]
-struct profile {
+struct Profile {
     user_id: String,
     username: String,
 }
 #[get("users/profile")]
-async fn get_user_profile(user: models::User) -> Result<web::Json<profile>, ServerError> {
-    let user_profile = profile {
+async fn get_user_profile(user: models::User) -> Result<web::Json<Profile>, ServerError> {
+    let user_profile = Profile {
         user_id: user.user_id.to_string(),
         username: user.username,
     };
