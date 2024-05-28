@@ -16,13 +16,8 @@ impl actix_web::FromRequest for models::User {
         let req = req.clone();
         Box::pin(async move {
             let mut conn = req.app_data::<web::Data<DbPool>>().unwrap().get()?;
-
-            let headers = req.headers();
-            let id = headers
-                .get("user_id")
-                .ok_or(ServerError::Unauthorized)?
-                .to_str()
-                .map_err(|_| ServerError::Unauthorized)?;
+            let cookie_id = req.cookie("user_id").ok_or(ServerError::Unauthorized)?;
+            let id = cookie_id.value();
             let user_id = uuid::Uuid::parse_str(id)?;
             let user =
                 users::get_user_by_id(&mut conn, user_id).map_err(|_| ServerError::Unauthorized)?;
