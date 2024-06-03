@@ -91,7 +91,7 @@ async fn edit_user_product(
 #[get("products/product/delete/{id}")]
 async fn delete_product_by_id(
     pool: web::Data<DbPool>,
-    info: web::Data<(i32,)>,
+    info: web::Path<(i32,)>,
     _: models::User,
 ) -> Result<HttpResponse, ServerError> {
     let mut conn = pool.get()?;

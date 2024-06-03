@@ -102,3 +102,9 @@ pub fn delete_product_by_id(conn: &mut PgConnection, id: i32) -> Result<usize, E
         .set(products::delete_time.eq(diesel::dsl::now))
         .execute(conn)
 }
+
+#[test]
+fn test_delete() {
+    let mut conn = establish_connection();
+    let _ = delete_product_by_id(&mut conn, 15);
+}
