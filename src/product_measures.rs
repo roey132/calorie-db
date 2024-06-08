@@ -31,6 +31,7 @@ pub fn get_product_measures_by_product(
     use self::schema::product_measures;
     let results = product_measures::table
         .filter(product_measures::product_id.eq(product_id))
+        .filter(product_measures::delete_time.is_null())
         .select(product_measures::table::all_columns())
         .load(conn);
 
