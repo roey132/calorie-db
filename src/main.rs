@@ -202,6 +202,21 @@ async fn get_all_non_user_products(
     Ok(web::Json(products_map))
 }
 
+#[get("/measures/measure/{id}")]
+async fn get_measure_by_id(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<web::Json<HashMap<String, models::ProductMeasure>>, ServerError> {
+    let mut conn = pool.get()?;
+    let measure_id = info.0;
+    let result = product_measures::get_product_measure_by_measure_id(&mut conn, measure_id)?;
+    let mut map = HashMap::new();
+    map.insert("measure".to_string(), result);
+
+    Ok(web::Json(map))
+}
+
 #[get("/measures/product/{id}")]
 async fn get_measures_for_product(
     pool: web::Data<DbPool>,
@@ -530,7 +545,8 @@ async fn main() -> std::io::Result<()> {
                 .service(get_user_meals_for_date)
                 .service(create_new_user)
                 .service(user_login)
-                .service(get_user_profile),
+                .service(get_user_profile)
+                .service(get_measure_by_id),
         )
     })
     .bind(("127.0.0.1", 8080))?
