@@ -296,6 +296,21 @@ pub fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+#[get("meals/meal/{id}")]
+async fn get_user_meal(
+    pool: web::Data<DbPool>,
+    info: web::Path<(i32,)>,
+    _: models::User,
+) -> Result<web::Json<HashMap<String, models::UserMeal>>, ServerError> {
+    let mut conn = pool.get()?;
+    let meal_id = info.0;
+    let user_meal = user_meals::get_user_meal_by_id(&mut conn, meal_id)?;
+    let mut map = HashMap::new();
+
+    map.insert("meal".to_string(), user_meal);
+    Ok(web::Json(map))
+}
+
 #[derive(Deserialize)]
 struct NewCaloriesMeal {
     calories: f64,
@@ -546,7 +561,8 @@ async fn main() -> std::io::Result<()> {
                 .service(create_new_user)
                 .service(user_login)
                 .service(get_user_profile)
-                .service(get_measure_by_id),
+                .service(get_measure_by_id)
+                .service(get_user_meal),
         )
     })
     .bind(("127.0.0.1", 8080))?

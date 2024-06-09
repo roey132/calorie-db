@@ -106,7 +106,7 @@ impl ToSql<MealType, Pg> for MealEnum {
     }
 }
 
-#[derive(Insertable, Queryable, Debug, PartialEq)]
+#[derive(Insertable, Queryable, Debug, PartialEq, Deserialize, Serialize)]
 #[diesel(table_name = crate::schema::user_meals)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct UserMeal {
