@@ -119,7 +119,6 @@ pub struct UserMeal {
     pub measure_count: Option<f64>,
     pub calories: Option<f64>,
     pub meal_name: Option<String>,
-    pub meal_note: Option<String>,
     pub meal_date: NaiveDate,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,

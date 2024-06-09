@@ -45,7 +45,6 @@ diesel::table! {
         measure_count -> Nullable<Float8>,
         calories -> Nullable<Float8>,
         meal_name -> Nullable<Varchar>,
-        meal_note -> Nullable<Varchar>,
         meal_date -> Date,
         create_time -> Timestamp,
         update_time -> Nullable<Timestamp>,
