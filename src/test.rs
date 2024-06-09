@@ -72,35 +72,10 @@ fn tests() {
     get_product_measures_by_product(conn, product_id).unwrap();
 
     let date = NaiveDate::from_ymd_opt(2024, 12, 12).unwrap();
-    create_user_meal_measure(
-        conn,
-        &user_id,
-        1,
-        2.5,
-        Some("test_name"),
-        Some("test_note"),
-        date,
-    )
-    .unwrap();
-    create_user_meal_product(
-        conn,
-        &user_id,
-        product_id,
-        100,
-        Some("Test Meal Name"),
-        None,
-        date,
-    )
-    .unwrap();
-    create_user_meal_calories(
-        conn,
-        &user_id,
-        Some("Test Calories Meal Name"),
-        None,
-        150.0,
-        date,
-    )
-    .unwrap();
+    create_user_meal_measure(conn, &user_id, 1, 2.5, date).unwrap();
+    create_user_meal_product(conn, &user_id, product_id, 100, date).unwrap();
+    create_user_meal_calories(conn, &user_id, Some("Test Calories Meal Name"), 150.0, date)
+        .unwrap();
 }
 
 #[test]

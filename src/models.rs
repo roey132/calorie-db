@@ -133,8 +133,6 @@ pub struct NewUserMealProduct<'a> {
     pub meal_type: MealEnum,
     pub product_id: i32,
     pub product_grams: i32,
-    pub meal_name: Option<&'a str>,
-    pub meal_note: Option<&'a str>,
     pub meal_date: NaiveDate,
 }
 
@@ -145,8 +143,6 @@ pub struct NewUserMealMeasure<'a> {
     pub meal_type: MealEnum,
     pub measure_id: i32,
     pub measure_count: f64,
-    pub meal_name: Option<&'a str>,
-    pub meal_note: Option<&'a str>,
     pub meal_date: NaiveDate,
 }
 
@@ -157,7 +153,6 @@ pub struct NewUserMealCalories<'a> {
     pub meal_type: MealEnum,
     pub calories: f64,
     pub meal_name: Option<&'a str>,
-    pub meal_note: Option<&'a str>,
     pub meal_date: NaiveDate,
 }
 

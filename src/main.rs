@@ -329,7 +329,6 @@ async fn create_calories_meal(
         &mut conn,
         &user.user_id,
         info.meal_name.as_deref(),
-        info.meal_note.as_deref(),
         info.calories,
         info.meal_date,
     )?;
@@ -342,7 +341,6 @@ struct NewProductMeal {
     product_grams: i32,
     meal_date: NaiveDate,
     meal_name: Option<String>,
-    meal_note: Option<String>,
 }
 #[post("meals/meal/create/product")]
 async fn create_product_meal(
@@ -356,8 +354,6 @@ async fn create_product_meal(
         &user.user_id,
         info.product_id,
         info.product_grams,
-        info.meal_name.as_deref(),
-        info.meal_note.as_deref(),
         info.meal_date,
     )?;
     Ok(HttpResponse::Ok().body("Successfully created product meal"))
@@ -383,8 +379,6 @@ async fn create_measure_meal(
         &user.user_id,
         info.measure_id,
         info.measure_count,
-        info.meal_name.as_deref(),
-        info.meal_note.as_deref(),
         info.meal_date,
     )?;
     Ok(HttpResponse::Ok().body("Successfully created measure meal"))
