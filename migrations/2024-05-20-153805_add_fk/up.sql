@@ -41,6 +41,7 @@ p.product_name,
 um.product_grams,
 pm.measure_name,
 um.measure_count,
+um.meal_name,
 um.meal_date,
 case 
 	when  meal_type = 'Calories' then um.calories
