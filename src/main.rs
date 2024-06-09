@@ -316,7 +316,6 @@ struct NewCaloriesMeal {
     calories: f64,
     meal_date: NaiveDate,
     meal_name: Option<String>,
-    meal_note: Option<String>,
 }
 #[post("meals/meal/create/calories")]
 async fn create_calories_meal(
@@ -364,8 +363,6 @@ struct NewMeasureMeal {
     measure_id: i32,
     measure_count: f64,
     meal_date: NaiveDate,
-    meal_name: Option<String>,
-    meal_note: Option<String>,
 }
 #[post("meals/meal/create/measure")]
 async fn create_measure_meal(
