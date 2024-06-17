@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
 use uuid;
+mod load_food_data;
 mod middleware;
 mod models;
 mod product_measures;
