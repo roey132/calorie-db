@@ -333,6 +333,9 @@ async fn get_user_meal(
 #[derive(Deserialize)]
 struct NewCaloriesMeal {
     calories: f64,
+    protein: Option<f64>,
+    carbs: Option<f64>,
+    fats: Option<f64>,
     meal_date: NaiveDate,
     meal_name: Option<String>,
 }
@@ -348,6 +351,9 @@ async fn create_calories_meal(
         &user.user_id,
         info.meal_name.as_deref(),
         info.calories,
+        info.protein,
+        info.carbs,
+        info.fats,
         info.meal_date,
     )?;
     Ok(HttpResponse::Ok().body("Successfully created calories meal"))

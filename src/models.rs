@@ -128,6 +128,9 @@ pub struct UserMeal {
     pub meal_date: NaiveDate,
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
+    pub protein: Option<f64>,
+    pub carbs: Option<f64>,
+    pub fats: Option<f64>,
 }
 
 use crate::schema::user_meals;
@@ -157,6 +160,9 @@ pub struct NewUserMealCalories<'a> {
     pub user_id: &'a Uuid,
     pub meal_type: MealEnum,
     pub calories: f64,
+    pub protein: Option<f64>,
+    pub carbs: Option<f64>,
+    pub fats: Option<f64>,
     pub meal_name: Option<&'a str>,
     pub meal_date: NaiveDate,
 }

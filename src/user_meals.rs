@@ -52,6 +52,9 @@ pub fn create_user_meal_calories(
     user_id: &Uuid,
     meal_name: Option<&str>,
     calories: f64,
+    protein: Option<f64>,
+    carbs: Option<f64>,
+    fats: Option<f64>,
     meal_date: NaiveDate,
 ) -> Result<usize, Error> {
     let meal_type = MealEnum::Calories;
@@ -60,6 +63,9 @@ pub fn create_user_meal_calories(
         user_id,
         meal_type,
         calories,
+        protein,
+        carbs,
+        fats,
         meal_name,
         meal_date,
     };
