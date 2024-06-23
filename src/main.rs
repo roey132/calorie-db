@@ -520,6 +520,7 @@ struct Profile {
     user_id: String,
     username: String,
 }
+
 #[get("users/profile")]
 async fn get_user_profile(user: models::User) -> Result<web::Json<Profile>, ServerError> {
     let user_profile = Profile {
