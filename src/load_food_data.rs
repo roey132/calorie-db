@@ -32,7 +32,15 @@ fn write_data() -> Result<(), Box<dyn Error>> {
     let records = read_csv(path)?;
     let conn = &mut establish_connection();
     for record in records {
-        products::create_system_product(conn, &record.name, record.calories / 100.0).unwrap();
+        products::create_system_product(
+            conn,
+            &record.name,
+            record.calories / 100.0,
+            None,
+            None,
+            None,
+        )
+        .unwrap();
     }
 
     Ok(())

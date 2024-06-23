@@ -1,5 +1,6 @@
 #![allow(unused_imports)]
 use chrono::NaiveDate;
+use diesel::expression::is_aggregate::No;
 use diesel::RunQueryDsl;
 use rand::{distributions::Alphanumeric, Rng};
 use uuid::Uuid;
@@ -51,8 +52,8 @@ fn tests() {
     let user_id = get_user_uuid(conn, &random_string).unwrap().user_id;
 
     // test product creation for user
-    create_product_for_user(conn, "potato", 5.0, &user_id).unwrap();
-    create_product_for_user(conn, "cucumber", 0.0, &user_id).unwrap();
+    create_product_for_user(conn, "potato", 5.0, None, None, None, &user_id).unwrap();
+    create_product_for_user(conn, "cucumber", 0.0, None, None, None, &user_id).unwrap();
 
     // get vector of products for that use (products that just got created)
     let mut user_products = get_products_by_user(conn, Some(user_id)).unwrap();

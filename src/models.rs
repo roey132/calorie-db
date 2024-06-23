@@ -23,6 +23,9 @@ pub struct Product {
     pub create_time: NaiveDateTime,
     pub update_time: Option<NaiveDateTime>,
     pub delete_time: Option<NaiveDateTime>,
+    pub protein_per_gram: Option<f64>,
+    pub carbs_per_gram: Option<f64>,
+    pub fats_per_gram: Option<f64>,
 }
 
 use crate::schema::products;
@@ -32,6 +35,9 @@ pub struct NewUserProduct<'a> {
     pub product_name: &'a str,
     pub calories_per_gram: f64,
     pub user_id: &'a Uuid,
+    pub protein_per_gram: Option<f64>,
+    pub carbs_per_gram: Option<f64>,
+    pub fats_per_gram: Option<f64>,
 }
 
 #[derive(Queryable, Selectable, Deserialize, Serialize)]

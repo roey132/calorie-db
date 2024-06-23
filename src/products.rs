@@ -43,6 +43,9 @@ pub fn create_product_for_user(
     conn: &mut PgConnection,
     product_name: &str,
     calories_per_gram: f64,
+    protein_per_gram: Option<f64>,
+    carbs_per_gram: Option<f64>,
+    fats_per_gram: Option<f64>,
     user_id: &Uuid,
 ) -> Result<usize, Error> {
     use crate::schema::products;
@@ -51,6 +54,9 @@ pub fn create_product_for_user(
         product_name: product_name,
         calories_per_gram: calories_per_gram,
         user_id: user_id,
+        protein_per_gram: protein_per_gram,
+        carbs_per_gram: carbs_per_gram,
+        fats_per_gram: fats_per_gram,
     };
 
     diesel::insert_into(products::table)
@@ -62,6 +68,9 @@ pub fn create_system_product(
     conn: &mut PgConnection,
     product_name: &str,
     calories_per_gram: f64,
+    protein_per_gram: Option<f64>,
+    carbs_per_gram: Option<f64>,
+    fats_per_gram: Option<f64>,
 ) -> Result<usize, Error> {
     use crate::schema::products;
     let sys_uuid = get_user_uuid(conn, &"system")
@@ -71,6 +80,9 @@ pub fn create_system_product(
         product_name: product_name,
         calories_per_gram: calories_per_gram,
         user_id: &sys_uuid,
+        protein_per_gram: protein_per_gram,
+        carbs_per_gram: carbs_per_gram,
+        fats_per_gram: fats_per_gram,
     };
 
     diesel::insert_into(products::table)
