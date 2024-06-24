@@ -63,7 +63,7 @@ fn tests() {
     let product_id = first_product.product_id;
 
     get_product_by_id(conn, product_id).unwrap();
-    update_product_by_id(conn, product_id, "egg", 100.0).unwrap();
+    update_product_by_id(conn, product_id, "egg", 100.0, None, None, None).unwrap();
 
     // test measurement functions
     create_product_measure(conn, product_id, "test_measure", 300.0, false).unwrap();

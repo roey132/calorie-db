@@ -68,6 +68,9 @@ struct UserProductEdit {
     product_name: String,
     product_id: i32,
     calories_per_100g: f64,
+    protein_per_100g: Option<f64>,
+    carbs_per_100g: Option<f64>,
+    fats_per_100g: Option<f64>,
 }
 #[post("/products/user_product/edit")]
 async fn edit_user_product(
@@ -78,12 +81,26 @@ async fn edit_user_product(
     let mut conn = pool.get()?;
 
     let calories_per_gram = info.calories_per_100g / 100.0;
-
+    let protein_per_gram = match info.protein_per_100g {
+        Some(value) => Some(value / 100.0),
+        None => None,
+    };
+    let carbs_per_gram = match info.carbs_per_100g {
+        Some(value) => Some(value / 100.0),
+        None => None,
+    };
+    let fats_per_gram = match info.fats_per_100g {
+        Some(value) => Some(value / 100.0),
+        None => None,
+    };
     products::update_product_by_id(
         &mut conn,
         info.product_id,
         &info.product_name,
         calories_per_gram,
+        protein_per_gram,
+        carbs_per_gram,
+        fats_per_gram,
     )?;
 
     Ok(HttpResponse::Ok().body("Successfully updated product"))

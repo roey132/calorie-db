@@ -95,6 +95,9 @@ pub fn update_product_by_id(
     product_id: i32,
     product_name: &str,
     calories_per_gram: f64,
+    protein_per_gram: Option<f64>,
+    carbs_per_gram: Option<f64>,
+    fats_per_gram: Option<f64>,
 ) -> Result<usize, Error> {
     use self::schema::products;
     diesel::update(products::table)
@@ -102,6 +105,9 @@ pub fn update_product_by_id(
         .set((
             products::product_name.eq(product_name),
             products::calories_per_gram.eq(calories_per_gram),
+            products::protein_per_gram.eq(protein_per_gram),
+            products::carbs_per_gram.eq(carbs_per_gram),
+            products::fats_per_gram.eq(fats_per_gram),
         ))
         .execute(conn)
 }
