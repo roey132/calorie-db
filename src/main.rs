@@ -162,34 +162,63 @@ async fn create_user_product(
     Ok(HttpResponse::Ok().body("Successfully created new product"))
 }
 
+#[derive(Deserialize, Serialize)]
+struct ReturnedProductDetailed {
+    pub product_id: i32,
+    pub product_name: String,
+    pub calories_per_gram: f64,
+    pub protein_per_gram: Option<f64>,
+    pub carbs_per_gram: Option<f64>,
+    pub fats_per_gram: Option<f64>,
+}
+
 #[get("/products/product/get/{id}")]
 async fn get_product(
     pool: web::Data<DbPool>,
     path: web::Path<(i32,)>,
     _: models::User,
-) -> Result<web::Json<HashMap<String, models::Product>>, ServerError> {
+) -> Result<web::Json<HashMap<String, ReturnedProductDetailed>>, ServerError> {
     let product_id = path.0;
     let mut conn = pool.get()?;
 
     let result = products::get_product_by_id(&mut conn, product_id)?;
-
-    let mut product_map: HashMap<String, models::Product> = HashMap::new();
-    product_map.insert("product".to_string(), result);
+    let deserialized_product = serde_json::to_string(&result).unwrap();
+    let returned_product: ReturnedProductDetailed =
+        serde_json::from_str(&deserialized_product).unwrap();
+    let mut product_map: HashMap<String, ReturnedProductDetailed> = HashMap::new();
+    product_map.insert("product".to_string(), returned_product);
 
     Ok(web::Json(product_map))
+}
+
+#[derive(Deserialize, Serialize)]
+struct ReturnedProduct {
+    pub product_id: i32,
+    pub product_name: String,
 }
 
 #[get("/products/user")]
 async fn get_products_for_user_id(
     pool: web::Data<DbPool>,
     user: models::User,
-) -> Result<web::Json<HashMap<i32, models::Product>>, ServerError> {
+) -> Result<web::Json<HashMap<i32, ReturnedProduct>>, ServerError> {
     let mut conn = pool.get()?;
 
     let user_id = user.user_id;
     let results = products::get_products_by_user(&mut conn, Some(user_id))?;
-    let mut products_map: HashMap<i32, models::Product> = HashMap::new();
-    for product in results {
+
+    let deserialized_products: Vec<String> = results
+        .iter()
+        .map(|product| serde_json::to_string(&product).unwrap())
+        .collect();
+
+    let returned_products: Vec<ReturnedProduct> = deserialized_products
+        .iter()
+        .map(|product| serde_json::from_str(&product).unwrap())
+        .collect();
+
+    let mut products_map: HashMap<i32, ReturnedProduct> = HashMap::new();
+    for product in returned_products {
         products_map.insert(product.product_id, product);
     }
     Ok(web::Json(products_map))
@@ -227,15 +256,33 @@ async fn user_login(
 async fn get_all_non_user_products(
     pool: web::Data<DbPool>,
     _: models::User,
-) -> Result<web::Json<HashMap<i32, models::Product>>, ServerError> {
+) -> Result<web::Json<HashMap<i32, ReturnedProduct>>, ServerError> {
     let mut conn = pool.get()?;
 
     let results = products::get_products_by_user(&mut conn, None)?;
-    let mut products_map: HashMap<i32, models::Product> = HashMap::new();
-    for product in results {
+    let deserialized_products: Vec<String> = results
+        .iter()
+        .map(|product| serde_json::to_string(&product).unwrap())
+        .collect();
+
+    let returned_products: Vec<ReturnedProduct> = deserialized_products
+        .iter()
+        .map(|product| serde_json::from_str(&product).unwrap())
+        .collect();
+
+    let mut products_map: HashMap<i32, ReturnedProduct> = HashMap::new();
+    for product in returned_products {
         products_map.insert(product.product_id, product);
     }
     Ok(web::Json(products_map))
+}
+
+#[derive(Deserialize, Serialize)]
+struct ReturnedMeasure {
+    pub product_id: i32,
+    pub measure_id: i32,
+    pub measure_name: String,
+    pub measure_calories: f64,
 }
 
 #[get("/measures/measure/{id}")]
@@ -243,12 +290,14 @@ async fn get_measure_by_id(
     pool: web::Data<DbPool>,
     info: web::Path<(i32,)>,
     _: models::User,
-) -> Result<web::Json<HashMap<String, models::ProductMeasure>>, ServerError> {
+) -> Result<web::Json<HashMap<String, ReturnedMeasure>>, ServerError> {
     let mut conn = pool.get()?;
     let measure_id = info.0;
     let result = product_measures::get_product_measure_by_measure_id(&mut conn, measure_id)?;
+    let deserialized_measure = serde_json::to_string(&result).unwrap();
+    let returned_measure: ReturnedMeasure = serde_json::from_str(&deserialized_measure).unwrap();
     let mut map = HashMap::new();
-    map.insert("measure".to_string(), result);
+    map.insert("measure".to_string(), returned_measure);
 
     Ok(web::Json(map))
 }
@@ -258,13 +307,24 @@ async fn get_measures_for_product(
     pool: web::Data<DbPool>,
     info: web::Path<(i32,)>,
     _: models::User,
-) -> Result<web::Json<HashMap<i32, models::ProductMeasure>>, ServerError> {
+) -> Result<web::Json<HashMap<i32, ReturnedMeasure>>, ServerError> {
     let mut conn = pool.get()?;
     let product_id = info.0;
     let results = product_measures::get_product_measures_by_product(&mut conn, product_id)?;
-    let mut measures: HashMap<i32, models::ProductMeasure> = HashMap::new();
-    for result in results {
-        measures.insert(result.measure_id, result);
+
+    let deserialized_measures: Vec<String> = results
+        .iter()
+        .map(|product| serde_json::to_string(&product).unwrap())
+        .collect();
+
+    let returned_measures: Vec<ReturnedMeasure> = deserialized_measures
+        .iter()
+        .map(|product| serde_json::from_str(&product).unwrap())
+        .collect();
+
+    let mut measures: HashMap<i32, ReturnedMeasure> = HashMap::new();
+    for measure in returned_measures {
+        measures.insert(measure.measure_id, measure);
     }
     Ok(web::Json(measures))
 }
@@ -332,18 +392,36 @@ pub fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+#[derive(Deserialize, Serialize)]
+struct ReturnedMealDetailed {
+    pub meal_id: i32,
+    pub meal_type: MealEnum,
+    pub product_id: Option<i32>,
+    pub product_grams: Option<i32>,
+    pub measure_id: Option<i32>,
+    pub measure_count: Option<f64>,
+    pub calories: Option<f64>,
+    pub meal_name: Option<String>,
+    pub meal_date: NaiveDate,
+    pub protein: Option<f64>,
+    pub carbs: Option<f64>,
+    pub fats: Option<f64>,
+}
+
 #[get("meals/meal/{id}")]
 async fn get_user_meal(
     pool: web::Data<DbPool>,
     info: web::Path<(i32,)>,
     _: models::User,
-) -> Result<web::Json<HashMap<String, models::UserMeal>>, ServerError> {
+) -> Result<web::Json<HashMap<String, ReturnedMealDetailed>>, ServerError> {
     let mut conn = pool.get()?;
     let meal_id = info.0;
     let user_meal = user_meals::get_user_meal_by_id(&mut conn, meal_id)?;
+    let deserialized_meal = serde_json::to_string(&user_meal).unwrap();
+    let returned_meal: ReturnedMealDetailed = serde_json::from_str(&deserialized_meal).unwrap();
     let mut map = HashMap::new();
 
-    map.insert("meal".to_string(), user_meal);
+    map.insert("meal".to_string(), returned_meal);
     Ok(web::Json(map))
 }
 
@@ -523,16 +601,39 @@ async fn get_total_calories_for_user(
     Ok(web::Json(results))
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct ReturnedUserMealCalculated {
+    pub meal_id: i32,
+    pub meal_type: MealEnum,
+    pub product_name: Option<String>,
+    pub product_grams: Option<i32>,
+    pub measure_name: Option<String>,
+    pub measure_count: Option<f64>,
+    pub meal_date: NaiveDate,
+    pub calc_calories: f64,
+}
+
 #[get["meals/date/{date}"]]
 async fn get_user_meals_for_date(
     pool: web::Data<DbPool>,
     info: web::Path<(NaiveDate,)>,
     user: models::User,
-) -> Result<web::Json<HashMap<i32, UserMealCalculated>>, ServerError> {
+) -> Result<web::Json<HashMap<i32, ReturnedUserMealCalculated>>, ServerError> {
     let mut conn = pool.get()?;
     let results = user_meals_calculated::get_user_meals_for_date(&mut conn, user.user_id, info.0)?;
+
+    let deserialized_meals: Vec<String> = results
+        .iter()
+        .map(|meal| serde_json::to_string(&meal).unwrap())
+        .collect();
+
+    let returned_user_meals: Vec<ReturnedUserMealCalculated> = deserialized_meals
+        .iter()
+        .map(|meal| serde_json::from_str(&meal).unwrap())
+        .collect();
+
     let mut meals = HashMap::new();
-    for meal in results {
+    for meal in returned_user_meals {
         meals.insert(meal.meal_id, meal);
     }
     Ok(web::Json(meals))

@@ -2,8 +2,6 @@ use serde::Deserialize;
 use std::error::Error;
 use std::fs::File;
 
-use crate::{establish_connection, products};
-
 #[derive(Debug, Deserialize)]
 struct NutrientRecord {
     name: String,
@@ -28,6 +26,8 @@ fn read_csv(file_path: &str) -> Result<Vec<NutrientRecord>, Box<dyn Error>> {
 }
 #[test]
 fn write_data() -> Result<(), Box<dyn Error>> {
+    use crate::{establish_connection, products};
+
     let path = "./food_data/filtered_nutrition.csv";
     let records = read_csv(path)?;
     let conn = &mut establish_connection();
