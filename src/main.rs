@@ -8,7 +8,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use dotenv::dotenv;
-use models::{MealEnum, UserMealCalculated};
+use models::MealEnum;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
